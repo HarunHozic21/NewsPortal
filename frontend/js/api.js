@@ -6,7 +6,7 @@
  * DESIGN PATTERN 2: Strategy (BiasStrategy)
  */
 
-const API_BASE = "http://127.0.0.1:5000/api";
+const API_BASE = "https://newsportal-3pyx.onrender.com/api";
 
 // ─── OBSERVER PATTERN — EventBus ─────────────
 const EventBus = (() => {
