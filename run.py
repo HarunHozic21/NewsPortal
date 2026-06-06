@@ -3,7 +3,10 @@ from app.models import User, Source, Article, Category, SavedArticle
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
 
-app = create_app(os.getenv("FLASK_ENV", "development"))
+app = create_app(os.getenv("FLASK_ENV", "production"))
+
+with app.app_context():
+    db.create_all()
 
 
 def scheduled_fetch():
