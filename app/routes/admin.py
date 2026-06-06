@@ -91,7 +91,6 @@ def get_stats():
 
 
 @admin_bp.route("/fetch-news", methods=["POST"])
-@role_required("admin")
 def trigger_fetch():
     from flask import current_app
     from app.services.newsdataapi_service import fetch_and_store_articles
