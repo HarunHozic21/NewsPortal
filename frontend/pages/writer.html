@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Writer Dashboard — Balkanske Vijesti</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body{background:#0d0f14;color:#d0d4e0}
+    .wr-topbar{background:#12151c;border-bottom:1px solid rgba(255,255,255,.07);padding:10px 0}
+    .wr-topbar a{color:rgba(255,255,255,.5);text-decoration:none;font-size:13px}
+    .wr-topbar a:hover{color:#fff}
+    .wr-nav{background:#12151c;border-bottom:1px solid rgba(255,255,255,.07);padding:12px 0;position:sticky;top:0;z-index:100}
+    .wr-card{background:#181c25;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:24px;margin-bottom:20px}
+    .wr-card-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+    .wr-input{background:#0d0f14;border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:9px 13px;width:100%;font-size:14px;font-family:'Source Sans 3',sans-serif;outline:none;transition:border-color .15s;appearance:none}
+    .wr-input:focus{border-color:#c8a96e;background:#0d0f14;color:#fff}
+    .wr-input::placeholder{color:rgba(255,255,255,.25)}
+    textarea.wr-input{resize:vertical}
+    select.wr-input option{background:#181c25;color:#fff}
+    .wr-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.4);display:block;margin-bottom:6px;margin-top:14px}
+    .wr-label:first-child{margin-top:0}
+    .btn-gold{background:#c8a96e;color:#0d0f14;border:none;padding:9px 20px;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .2s}
+    .btn-gold:hover{opacity:.85}
+    .btn-ghost{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12);padding:9px 20px;border-radius:6px;font-weight:600;font-size:14px;cursor:pointer}
+    .btn-ghost:hover{background:rgba(255,255,255,.12)}
+    .queue-item{border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:16px;margin-bottom:12px;background:#0d0f14}
+    .queue-item-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.4}
+    .queue-item-meta{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:8px}
+    .queue-item-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:8px}
+    .queue-item-content{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5;max-height:56px;overflow:hidden;margin-bottom:10px;font-style:italic}
+    .queue-item-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .btn-approve{background:#52c87a;color:#0d0f14;border:none;padding:6px 16px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer}
+    .btn-approve:hover{opacity:.85}
+    .btn-reject{background:#e05252;color:#fff;border:none;padding:6px 16px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer}
+    .btn-reject:hover{opacity:.85}
+    .btn-source{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12);padding:6px 14px;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .badge-count{background:rgba(224,82,82,.2);color:#e05252;font-size:11px;padding:1px 8px;border-radius:10px;font-weight:700}
+    .status-pending{font-size:11px;color:#e0a052;background:rgba(224,160,82,.15);padding:3px 10px;border-radius:4px;font-weight:700}
+    .role-badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 10px;border-radius:4px;background:rgba(200,169,110,.2);color:#c8a96e}
+    .alert-dark-danger{background:rgba(224,82,82,.12);border:1px solid rgba(224,82,82,.3);color:#e05252;border-radius:6px;padding:10px 14px;font-size:13px}
+    .alert-dark-success{background:rgba(82,200,122,.12);border:1px solid rgba(82,200,122,.3);color:#52c87a;border-radius:6px;padding:10px 14px;font-size:13px}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .skeleton{height:80px;border-radius:8px;background:rgba(255,255,255,.04);animation:pulse 1.5s infinite;margin-bottom:10px}
+    .toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+    .toast-msg{background:#181c25;border:1px solid rgba(255,255,255,.1);border-left:3px solid #52c87a;color:#fff;padding:12px 18px;border-radius:8px;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 30px rgba(0,0,0,.4);animation:toastIn .25s forwards}
+    .toast-msg.error{border-left-color:#e05252}
+    @keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+<div class="wr-topbar">
+  <div class="container d-flex justify-content-between align-items-center">
+    <a href="/index.html"><i class="bi bi-arrow-left me-1"></i> Back to Site</a>
+    <span style="font-size:12px;color:rgba(255,255,255,.3)">Balkanske Vijesti — Editorial</span>
+    <span></span>
+  </div>
+</div>
+<div class="wr-nav">
+  <div class="container d-flex align-items-center justify-content-between">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff"><span style="color:#c8a96e">BV</span> Writer Dashboard</div>
+    <div class="d-flex align-items-center gap-3">
+      <span id="navUsername" style="color:rgba(255,255,255,.5);font-size:13px"></span>
+      <span class="role-badge" id="navRoleBadge"></span>
+      <button class="btn-ghost" style="padding:6px 14px;font-size:13px" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+<div id="accessDenied" class="d-none" style="text-align:center;padding:80px 20px">
+  <div style="font-size:56px;opacity:.3">🔒</div>
+  <h3 style="font-family:'Playfair Display',serif;margin-top:16px;color:#fff">Access Denied</h3>
+  <p style="color:rgba(255,255,255,.4)">You need writer, editor, or admin role.</p>
+  <a href="/index.html" class="btn-gold mt-3" style="text-decoration:none">Back to Site</a>
+</div>
+<div id="dashboardContent" style="display:none">
+  <div class="container" style="max-width:900px;padding-top:36px;padding-bottom:60px">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 style="font-family:'Playfair Display',serif;font-size:28px;color:#fff;margin:0" id="pageTitle">Writer Dashboard</h1>
+        <p style="color:rgba(255,255,255,.4);font-size:14px;margin:4px 0 0" id="pageSubtitle">Submit articles for editorial review</p>
+      </div>
+      <button class="btn-gold" onclick="toggleForm()"><i class="bi bi-plus-lg"></i> New Article</button>
+    </div>
+    <div id="submitForm" class="wr-card" style="display:none">
+      <div class="wr-card-title"><i class="bi bi-pencil-fill" style="color:#c8a96e"></i> Submit New Article</div>
+      <label class="wr-label">Title *</label>
+      <input type="text" class="wr-input" id="sf-title" placeholder="Article headline"/>
+      <label class="wr-label">Source URL *</label>
+      <input type="url" class="wr-input" id="sf-url" placeholder="https://source.com/article"/>
+      <label class="wr-label">Country</label>
+      <select class="wr-input" id="sf-country" onchange="loadSources()">
+        <option value="">Select country…</option>
+        <option value="ba">🇧🇦 Bosnia</option>
+        <option value="rs">🇷🇸 Serbia</option>
+        <option value="hr">🇭🇷 Croatia</option>
+        <option value="si">🇸🇮 Slovenia</option>
+        <option value="me">🇲🇪 Montenegro</option>
+        <option value="mk">🇲🇰 N. Macedonia</option>
+        <option value="xk">🇽🇰 Kosovo</option>
+      </select>
+      <label class="wr-label">Source</label>
+      <select class="wr-input" id="sf-source">
+        <option value="">Select country first…</option>
+      </select>
+      <label class="wr-label">Short Description</label>
+      <textarea class="wr-input" id="sf-desc" rows="2" placeholder="1-2 sentence summary…"></textarea>
+      <label class="wr-label">Full Content</label>
+      <textarea class="wr-input" id="sf-content" rows="6" placeholder="Paste or write the full article body here…"></textarea>
+      <label class="wr-label">Image URL</label>
+      <input type="url" class="wr-input" id="sf-image" placeholder="https://…"/>
+      <div id="sfError" class="alert-dark-danger d-none mt-3"></div>
+      <div id="sfSuccess" class="alert-dark-success d-none mt-3"></div>
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn-gold" onclick="submitArticle()" id="sfBtn"><i class="bi bi-send"></i> Submit for Review</button>
+        <button class="btn-ghost" onclick="toggleForm()">Cancel</button>
+      </div>
+    </div>
+    <div class="wr-card">
+      <div class="wr-card-title">
+        <i class="bi bi-hourglass-split" style="color:#e0a052"></i>
+        <span id="queueTitleText">My Submissions</span>
+        <span class="badge-count" id="queueCount" style="display:none"></span>
+      </div>
+      <div id="pendingList"><div class="skeleton"></div><div class="skeleton"></div></div>
+    </div>
+  </div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+const API='http://127.0.0.1:5000/api';
+function authH(){const t=localStorage.getItem('bv_token');return{'Content-Type':'application/json',...(t?{Authorization:`Bearer ${t}`}:{})}}
+async function apiFetch(path,opts={}){const res=await fetch(`${API}${path}`,{headers:authH(),...opts});const data=await res.json();if(!res.ok)throw new Error(data.error||data.message||`HTTP ${res.status}`);return data}
+let currentRole='';
+document.addEventListener('DOMContentLoaded',async()=>{
+  const user=JSON.parse(localStorage.getItem('bv_user')||'null');
+  if(!user||!['writer','editor','admin'].includes(user.role)){document.getElementById('accessDenied').classList.remove('d-none');return}
+  currentRole=user.role;
+  document.getElementById('dashboardContent').style.display='block';
+  document.getElementById('navUsername').textContent=user.username;
+  document.getElementById('navRoleBadge').textContent=user.role;
+  if(['editor','admin'].includes(user.role)){document.getElementById('pageTitle').textContent='Editor Dashboard';document.getElementById('pageSubtitle').textContent='Review and approve submitted articles';document.getElementById('queueTitleText').textContent='Articles Awaiting Approval'}
+  await loadQueue();
+});
+async function loadSources(){
+  const country=document.getElementById('sf-country').value;
+  const sel=document.getElementById('sf-source');
+  if(!country){sel.innerHTML='<option value="">Select country first…</option>';return}
+  sel.innerHTML='<option value="">Loading…</option>';
+  try{const sources=await apiFetch(`/sources/?country=${country}`);const list=Array.isArray(sources)?sources:(sources.sources||[]);
+  if(!list.length){sel.innerHTML='<option value="">No sources for this country</option>';return}
+  sel.innerHTML='<option value="">No specific source</option>'+list.map(s=>`<option value="${s.id}">${escHtml(s.name)}</option>`).join('')}
+  catch{sel.innerHTML='<option value="">Could not load sources</option>'}}
+async function loadQueue(){
+  const list=document.getElementById('pendingList');const countEl=document.getElementById('queueCount');
+  list.innerHTML='<div class="skeleton"></div><div class="skeleton"></div>';
+  try{
+    const isEditor=['editor','admin'].includes(currentRole);
+    const endpoint=isEditor?'/admin/articles?status=inactive&per_page=50':'/writer/my-articles';
+    const data=await apiFetch(endpoint);const articles=Array.isArray(data)?data:(data.articles||[]);
+    if(articles.length){countEl.textContent=articles.length;countEl.style.display='inline'}else{countEl.style.display='none'}
+    if(!articles.length){list.innerHTML=`<p style="color:rgba(255,255,255,.35);font-size:14px;padding:8px 0">${isEditor?'No articles pending review.':'You have no submitted articles yet. Click "New Article" to submit one.'}</p>`;return}
+    list.innerHTML=articles.map(a=>`
+      <div class="queue-item" id="qi-${a.id}">
+        ${a.image_url?`<img src="${escHtml(a.image_url)}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;margin-bottom:12px" onerror="this.style.display='none'"/>`:''}
+        <div class="queue-item-title">${escHtml(a.title||'Untitled')}</div>
+        <div class="queue-item-meta">${a.source?.name||'Manually submitted'}${a.source?.country?' · '+a.source.country.toUpperCase():''} · ${a.published_at?new Date(a.published_at).toLocaleDateString('en-GB'):'No date'}</div>
+        ${a.description?`<div class="queue-item-desc">${escHtml(a.description)}</div>`:''}
+        ${a.content?`<div class="queue-item-content">${escHtml(a.content.substring(0,220))}${a.content.length>220?'…':''}</div>`:''}
+        <div class="queue-item-actions">
+          ${a.url?`<a href="${escHtml(a.url)}" target="_blank" class="btn-source"><i class="bi bi-link-45deg"></i> View Source</a>`:''}
+          ${isEditor?`<button class="btn-approve" onclick="approve(${a.id})"><i class="bi bi-check2 me-1"></i>Approve</button><button class="btn-reject" onclick="reject(${a.id})"><i class="bi bi-x me-1"></i>Reject</button>`:`<span class="status-pending"><i class="bi bi-hourglass me-1"></i>Awaiting review</span>`}
+        </div>
+      </div>`).join('');
+  }catch(e){list.innerHTML=`<p style="color:#e05252;font-size:13px">${e.message}</p>`}}
+async function approve(id){try{await apiFetch(`/admin/articles/${id}/approve`,{method:'POST'});document.getElementById(`qi-${id}`)?.remove();showToast('Article approved and published!');updateBadge()}catch(e){showToast(e.message,'error')}}
+async function reject(id){if(!confirm('Reject and delete this article?'))return;try{await apiFetch(`/admin/articles/${id}/reject`,{method:'POST'});document.getElementById(`qi-${id}`)?.remove();showToast('Article rejected');updateBadge()}catch(e){showToast(e.message,'error')}}
+function updateBadge(){const r=document.querySelectorAll('[id^="qi-"]').length;const el=document.getElementById('queueCount');if(r===0)el.style.display='none';else el.textContent=r}
+function toggleForm(){const f=document.getElementById('submitForm');f.style.display=f.style.display==='none'?'block':'none'}
+async function submitArticle(){
+  const title=document.getElementById('sf-title').value.trim();const url=document.getElementById('sf-url').value.trim();
+  const errEl=document.getElementById('sfError');const okEl=document.getElementById('sfSuccess');const btn=document.getElementById('sfBtn');
+  errEl.classList.add('d-none');okEl.classList.add('d-none');
+  if(!title||!url){errEl.textContent='Title and URL are required.';errEl.classList.remove('d-none');return}
+  btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span> Submitting…';
+  try{
+    const sourceId=document.getElementById('sf-source').value;
+    await apiFetch('/writer/submit',{method:'POST',body:JSON.stringify({title,url,description:document.getElementById('sf-desc').value.trim(),content:document.getElementById('sf-content').value.trim(),image_url:document.getElementById('sf-image').value.trim(),source_id:sourceId?parseInt(sourceId):null})});
+    okEl.textContent='Article submitted! An editor will review it shortly.';okEl.classList.remove('d-none');
+    ['sf-title','sf-url','sf-desc','sf-content','sf-image'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('sf-country').value='';document.getElementById('sf-source').innerHTML='<option value="">Select country first…</option>';
+    await loadQueue()
+  }catch(e){errEl.textContent=e.message;errEl.classList.remove('d-none')}
+  finally{btn.disabled=false;btn.innerHTML='<i class="bi bi-send"></i> Submit for Review'}}
+function doLogout(){localStorage.removeItem('bv_token');localStorage.removeItem('bv_user');window.location.href='/index.html'}
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function showToast(msg,type='success'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast-msg ${type}`;t.innerHTML=`<i class="bi bi-${type==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),400)},3000)}
+</script>
+</body>
+</html>

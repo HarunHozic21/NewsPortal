@@ -35,22 +35,55 @@ const Auth = (() => {
     return !!getToken() && !!getUser();
   }
 
-  function updateNavbar() {
-    const user = getUser();
-    const authNav = document.getElementById("authNav");
-    const userNav = document.getElementById("userNav");
-    const navUsername = document.getElementById("navUsername");
-    if (!authNav || !userNav) return;
-    if (isLoggedIn() && user) {
-      authNav.classList.add("d-none");
-      userNav.classList.remove("d-none");
-      if (navUsername)
-        navUsername.textContent = user.username || user.email || "User";
-    } else {
-      authNav.classList.remove("d-none");
-      userNav.classList.add("d-none");
+function updateNavbar() {
+  const user = getUser();
+  const authNav = document.getElementById("authNav");
+  const userNav = document.getElementById("userNav");
+  const navUsername = document.getElementById("navUsername");
+  if (!authNav || !userNav) return;
+
+  if (isLoggedIn() && user) {
+    authNav.classList.add("d-none");
+    userNav.classList.remove("d-none");
+    if (navUsername) navUsername.textContent = user.username || user.email || "User";
+
+    const dropdownMenu = userNav.querySelector(".dropdown-menu");
+    if (dropdownMenu) {
+      dropdownMenu.querySelectorAll(".role-nav-item").forEach((el) => el.remove());
+
+      const onPages = location.pathname.includes("/pages/");
+      const base = onPages ? "" : "pages/";
+
+      let extraLinks = `<li class="role-nav-item"><a class="dropdown-item" href="${base}feed.html"><i class="bi bi-rss me-2"></i>My Feed</a></li>`;
+
+      if (["writer", "editor", "admin"].includes(user.role)) {
+        extraLinks += `<li class="role-nav-item"><a class="dropdown-item" href="${base}writer.html"><i class="bi bi-pencil-fill me-2"></i>Writer Dashboard</a></li>`;
+      }
+
+      if (["editor", "admin"].includes(user.role)) {
+        extraLinks += `<li class="role-nav-item"><a class="dropdown-item" href="${base}editor.html"><i class="bi bi-journals me-2"></i>Editor Dashboard</a></li>`;
+      }
+
+      if (user.role === "admin") {
+        extraLinks += `<li class="role-nav-item"><a class="dropdown-item" href="${base}admin.html"><i class="bi bi-shield-fill me-2"></i>Admin Panel</a></li>`;
+      }
+
+      extraLinks += `<li class="role-nav-item"><hr class="dropdown-divider"/></li>`;
+
+      const logoutItem = dropdownMenu.querySelector("[onclick='logout()']")?.closest("li");
+      if (logoutItem) {
+        const temp = document.createElement("div");
+        temp.innerHTML = `<ul>${extraLinks}</ul>`;
+        [...temp.querySelector("ul").children].forEach((el) => {
+          dropdownMenu.insertBefore(el, logoutItem);
+        });
+      }
     }
+  } else {
+    authNav.classList.remove("d-none");
+    userNav.classList.add("d-none");
   }
+}
 
   // Only verify token if we have one stored — never clear on network failure
   async function tryAutoLogin() {
