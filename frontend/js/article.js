@@ -2,6 +2,8 @@
  * article.js — Article detail page controller
  */
 
+const _API_BASE = "https://newsportal-3pyx.onrender.com/api";
+
 let currentArticle = null;
 let comments = [];
 let isSaved = false;
@@ -306,7 +308,7 @@ function showArticleError(msg) {
 if (!ApiService.postComment) {
   ApiService.postComment = (articleId, text) => {
     const token = localStorage.getItem("bv_token");
-    return fetch(`${API_BASE}/articles/${articleId}/comments`, {
+    return fetch(`${_API_BASE}/articles/${articleId}/comments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -318,5 +320,5 @@ if (!ApiService.postComment) {
 }
 if (!ApiService.getComments) {
   ApiService.getComments = (articleId) =>
-    fetch(`${API_BASE}/articles/${articleId}/comments`).then((r) => r.json());
+    fetch(`${_API_BASE}/articles/${articleId}/comments`).then((r) => r.json());
 }
