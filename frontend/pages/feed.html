@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Feed — Balkanske Vijesti</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="container d-flex justify-content-between align-items-center">
+        <a href="../index.html" class="topbar-link"
+          ><i class="bi bi-arrow-left"></i> Home</a
+        >
+        <span class="topbar-tagline">Your personalised Balkan news</span>
+        <span></span>
+      </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg main-nav sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="../index.html">
+          <span class="brand-bv">BV</span>
+          <span class="brand-text">Balkanske<br /><em>Vijesti</em></span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html">Home</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                ><i class="bi bi-geo-alt"></i> Countries</a
+              >
+              <ul class="dropdown-menu country-dropdown">
+                <li>
+                  <a
+                    class="dropdown-item country-item"
+                    href="country.html?country=Bosnia"
+                    ><span class="flag">🇧🇦</span> Bosnia</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item country-item"
+                    href="country.html?country=Serbia"
+                    ><span class="flag">🇷🇸</span> Serbia</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item country-item"
+                    href="country.html?country=Croatia"
+                    ><span class="flag">🇭🇷</span> Croatia</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item country-item"
+                    href="country.html?country=Slovenia"
+                    ><span class="flag">🇸🇮</span> Slovenia</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item country-item"
+                    href="country.html?country=Montenegro"
+                    ><span class="flag">🇲🇪</span> Montenegro</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item country-item"
+                    href="country.html?country=NorthMacedonia"
+                    ><span class="flag">🇲🇰</span> N. Macedonia</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item country-item"
+                    href="country.html?country=Kosovo"
+                    ><span class="flag">🇽🇰</span> Kosovo</a
+                  >
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="feed.html"
+                ><i class="bi bi-rss"></i> My Feed</a
+              >
+            </li>
+          </ul>
+          <div class="ms-auto auth-nav" id="authNav">
+            <a
+              href="#"
+              class="btn btn-outline-nav me-1"
+              onclick="showModal('loginModal')"
+              >Login</a
+            >
+            <a
+              href="#"
+              class="btn btn-fill-nav"
+              onclick="showModal('registerModal')"
+              >Register</a
+            >
+          </div>
+          <div class="ms-auto user-nav d-none" id="userNav">
+            <div class="dropdown">
+              <button
+                class="btn btn-user dropdown-toggle"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-person-circle"></i>
+                <span id="navUsername">User</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item active" href="feed.html"
+                    ><i class="bi bi-rss me-2"></i>My Feed</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()"
+                    ><i class="bi bi-box-arrow-right me-2"></i>Logout</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <header class="feed-header">
+      <div class="container">
+        <div id="feedHeaderContent">
+          <div
+            class="skeleton"
+            style="
+              height: 40px;
+              width: 300px;
+              margin-bottom: 8px;
+              border-radius: 4px;
+              background: rgba(255, 255, 255, 0.1);
+            "
+          ></div>
+          <div
+            class="skeleton"
+            style="
+              height: 18px;
+              width: 400px;
+              border-radius: 4px;
+              background: rgba(255, 255, 255, 0.08);
+            "
+          ></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container" id="mainContainer">
+        <!-- filled by JS -->
+      </div>
+    </main>
+
+    <footer class="site-footer mt-5">
+      <div class="container">
+        <div class="footer-bottom"><p>© 2025 Balkanske Vijesti</p></div>
+      </div>
+    </footer>
+
+    <!-- AUTH MODALS -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content auth-modal">
+          <div class="modal-header border-0">
+            <h4 class="modal-title">Welcome Back</h4>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="loginError" class="alert alert-danger d-none"></div>
+            <div class="mb-3">
+              <label class="form-label">Email</label
+              ><input
+                type="email"
+                class="form-control auth-input"
+                id="loginEmail"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label
+              ><input
+                type="password"
+                class="form-control auth-input"
+                id="loginPassword"
+              />
+            </div>
+            <button class="btn btn-auth w-100" onclick="doLogin()">
+              Sign In
+              <span
+                id="loginSpinner"
+                class="spinner-border spinner-border-sm d-none"
+              ></span>
+            </button>
+            <p class="text-center mt-3 auth-switch">
+              No account?
+              <a href="#" onclick="switchModal('loginModal', 'registerModal')"
+                >Register</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="registerModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content auth-modal">
+          <div class="modal-header border-0">
+            <h4 class="modal-title">Create Account</h4>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="registerError" class="alert alert-danger d-none"></div>
+            <div id="registerSuccess" class="alert alert-success d-none"></div>
+            <div class="mb-3">
+              <label class="form-label">Username</label
+              ><input
+                type="text"
+                class="form-control auth-input"
+                id="regUsername"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label
+              ><input
+                type="email"
+                class="form-control auth-input"
+                id="regEmail"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label
+              ><input
+                type="password"
+                class="form-control auth-input"
+                id="regPassword"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Country</label>
+              <select class="form-select auth-input" id="regCountry">
+                <option value="">Select country</option>
+                <option value="Bosnia">Bosnia & Herzegovina</option>
+                <option value="Serbia">Serbia</option>
+                <option value="Croatia">Croatia</option>
+                <option value="Slovenia">Slovenia</option>
+                <option value="Montenegro">Montenegro</option>
+                <option value="NorthMacedonia">North Macedonia</option>
+                <option value="Kosovo">Kosovo</option>
+              </select>
+            </div>
+            <button class="btn btn-auth w-100" onclick="doRegister()">
+              Create Account
+              <span
+                id="registerSpinner"
+                class="spinner-border spinner-border-sm d-none"
+              ></span>
+            </button>
+            <p class="text-center mt-3 auth-switch">
+              Have an account?
+              <a href="#" onclick="switchModal('registerModal', 'loginModal')"
+                >Sign In</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+      const COUNTRIES_LIST = [
+        { key: "Bosnia", name: "Bosnia & Herzegovina", flag: "🇧🇦" },
+        { key: "Serbia", name: "Serbia", flag: "🇷🇸" },
+        { key: "Croatia", name: "Croatia", flag: "🇭🇷" },
+        { key: "Slovenia", name: "Slovenia", flag: "🇸🇮" },
+        { key: "Montenegro", name: "Montenegro", flag: "🇲🇪" },
+        { key: "NorthMacedonia", name: "North Macedonia", flag: "🇲🇰" },
+        { key: "Kosovo", name: "Kosovo", flag: "🇽🇰" },
+      ];
+
+      const CATEGORIES_LIST = [
+        "Politics",
+        "Economy",
+        "Culture",
+        "Diplomacy",
+        "Environment",
+        "Justice",
+        "Energy",
+        "Society",
+      ];
+
+      let feedPrefs = JSON.parse(
+        localStorage.getItem("bv_feed_prefs") ||
+          '{"countries":[],"categories":[],"sources":[]}',
+      );
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        await Auth.tryAutoLogin();
+        EventBus.on("auth:changed", renderPage);
+        renderPage();
+      });
+
+      function renderPage() {
+        const user = Auth.getUser();
+        const loggedIn = Auth.isLoggedIn();
+        const header = document.getElementById("feedHeaderContent");
+        const container = document.getElementById("mainContainer");
+
+        if (!loggedIn) {
+          header.innerHTML = `<h1 class="feed-title">My Feed</h1><p style="color:rgba(255,255,255,.6);font-size:16px">Sign in to personalise your news feed.</p>`;
+          container.innerHTML = `
+      <div style="text-align:center;padding:80px 0">
+        <div style="font-size:64px;margin-bottom:20px">📰</div>
+        <h3 style="font-family:var(--font-display);font-size:28px;margin-bottom:12px">Personalise Your News</h3>
+        <p style="color:var(--text-muted);font-size:16px;max-width:400px;margin:0 auto 24px">Sign in to choose which countries, topics and sources appear in your feed.</p>
+        <button class="btn btn-fill-nav" style="font-size:15px;padding:10px 30px" onclick="showModal('loginModal')">Sign In</button>
+        &nbsp;
+        <button class="btn btn-outline-nav" style="font-size:15px;padding:10px 30px" onclick="showModal('registerModal')">Register</button>
+      </div>`;
+          return;
+        }
+
+        header.innerHTML = `
+    <h1 class="feed-title">My Feed</h1>
+    <p style="color:rgba(255,255,255,.6);font-size:16px">Welcome back, <strong style="color:var(--gold)">${user?.username || "Reader"}</strong>. Customise what you see below.</p>`;
+
+        container.innerHTML = `
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <!-- Preferences panel -->
+        <div class="feed-card">
+          <div class="feed-card-title"><i class="bi bi-sliders me-2" style="color:var(--accent)"></i>Feed Preferences</div>
+
+          <div style="font-weight:700;font-size:13px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)">Countries</div>
+          <div id="countryToggles" style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px"></div>
+
+          <div style="font-weight:700;font-size:13px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)">Categories</div>
+          <div id="categoryToggles" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px"></div>
+
+          <button class="btn-comment w-100" onclick="saveFeedPrefs()" style="width:100%;border-radius:4px">
+            <i class="bi bi-check2 me-1"></i> Save Preferences
+          </button>
+        </div>
+
+        <!-- Saved articles -->
+        <div class="feed-card mt-3">
+          <div class="feed-card-title"><i class="bi bi-bookmark-fill me-2" style="color:var(--gold)"></i>Saved Articles</div>
+          <div id="savedArticlesList"></div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="section-header"><h2 class="section-title">Your Personalised Feed</h2></div>
+        <div id="feedArticlesGrid" class="articles-grid"></div>
+        <p id="feedEmpty" class="d-none" style="color:var(--text-muted);text-align:center;padding:40px 0">
+          <i class="bi bi-filter" style="font-size:32px;display:block;margin-bottom:12px"></i>
+          Select at least one country or category to see your feed.
+        </p>
+      </div>
+    </div>`;
+
+        renderToggles();
+        loadFeedArticles();
+        loadSavedArticles();
+      }
+
+      function renderToggles() {
+        // Country toggles
+        const ct = document.getElementById("countryToggles");
+        ct.innerHTML = COUNTRIES_LIST.map((c) => {
+          const checked =
+            feedPrefs.countries.length === 0 ||
+            feedPrefs.countries.includes(c.key);
+          return `
+      <div class="feed-toggle">
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" id="ctry_${c.key}" ${checked ? "checked" : ""} onchange="updatePref('countries','${c.key}',this.checked)" style="cursor:pointer">
+          <label class="form-check-label" for="ctry_${c.key}" style="cursor:pointer">${c.flag} ${c.name}</label>
+        </div>
+      </div>`;
+        }).join("");
+
+        // Category pills
+        const cat = document.getElementById("categoryToggles");
+        cat.innerHTML = CATEGORIES_LIST.map((c) => {
+          const active =
+            feedPrefs.categories.length === 0 ||
+            feedPrefs.categories.includes(c);
+          return `<button class="filter-btn ${active ? "active" : ""}" onclick="toggleCategory('${c}',this)">${c}</button>`;
+        }).join("");
+      }
+
+      function updatePref(type, val, checked) {
+        if (checked) {
+          if (!feedPrefs[type].includes(val)) feedPrefs[type].push(val);
+        } else {
+          feedPrefs[type] = feedPrefs[type].filter((v) => v !== val);
+        }
+      }
+
+      function toggleCategory(cat, btn) {
+        btn.classList.toggle("active");
+        updatePref("categories", cat, btn.classList.contains("active"));
+      }
+
+      function saveFeedPrefs() {
+        localStorage.setItem("bv_feed_prefs", JSON.stringify(feedPrefs));
+        showToast("Feed preferences saved!", "success");
+        loadFeedArticles();
+      }
+
+      function loadFeedArticles() {
+        const grid = document.getElementById("feedArticlesGrid");
+        const emptyEl = document.getElementById("feedEmpty");
+        if (!grid) return;
+
+        let articles = MOCK.articles;
+
+        if (feedPrefs.countries.length) {
+          articles = articles.filter((a) =>
+            feedPrefs.countries.includes(a.country),
+          );
+        }
+        if (feedPrefs.categories.length) {
+          articles = articles.filter((a) =>
+            feedPrefs.categories.includes(a.category),
+          );
+        }
+
+        if (!articles.length) {
+          grid.innerHTML = "";
+          emptyEl?.classList.remove("d-none");
+          return;
+        }
+        emptyEl?.classList.add("d-none");
+
+        grid.innerHTML = articles
+          .map((a, i) => {
+            const bias = BiasStrategy.resolve(a.bias);
+            return `
+      <a class="article-card fade-in" href="article.html?id=${a.id}" style="animation-delay:${i * 0.05}s">
+        <img class="article-thumb" src="${a.image || "https://picsum.photos/seed/" + a.id + "f/300/200"}" alt="" loading="lazy"/>
+        <div style="flex:1">
+          <div class="article-meta-row">
+            <span class="article-category">${a.category}</span>
+            <span class="article-country-badge">${(MOCK.countries[a.country] || {}).flag || ""} ${a.country}</span>
+          </div>
+          <div class="article-title">${a.title}</div>
+          <div class="article-excerpt">${a.excerpt || ""}</div>
+          <div class="article-footer">
+            <span>${a.source}</span>
+            <span class="bias-badge ${bias.cssClass}">${bias.label}</span>
+          </div>
+        </div>
+      </a>`;
+          })
+          .join("");
+      }
+
+      async function loadSavedArticles() {
+        const el = document.getElementById("savedArticlesList");
+        if (!el) return;
+
+        let saved = [];
+        try {
+          const data = await ApiService.getSavedArticles();
+          saved = Array.isArray(data) ? data : [];
+        } catch {
+          saved = [];
+        }
+
+        if (!saved.length) {
+          el.innerHTML = `<p style="font-size:13px;color:var(--text-muted)">No saved articles yet. Click the bookmark on any article to save it.</p>`;
+          return;
+        }
+
+        // Look up full article data using the article_id from saved record
+        const articles = saved.map((s) => {
+          const id = s.article_id || s.id;
+          const mock = MOCK.articles.find((a) => a.id === id);
+          return (
+            mock || {
+              id,
+              title: `Article #${id}`,
+              source: "",
+              published_at: s.saved_at,
+            }
+          );
+        });
+
+        el.innerHTML = articles
+          .map(
+            (a) => `
+    <a href="article.html?id=${a.id}" style="display:block;padding:10px 0;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);">
+      <div style="font-size:14px;font-weight:600;line-height:1.3">${a.title}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:3px">${a.source || ""} ${a.published_at ? "· " + formatDate(a.published_at) : ""}</div>
+    </a>`,
+          )
+          .join("");
+      }
+    </script>
+  </body>
+</html>

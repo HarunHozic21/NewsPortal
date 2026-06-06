@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Article — HarunInfo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="container d-flex justify-content-between align-items-center">
+    <a href="../index.html" class="topbar-link"><i class="bi bi-arrow-left"></i> Home</a>
+    <span class="topbar-tagline">Objective reporting from the Balkans</span>
+    <div class="topbar-actions">
+      <a href="bias.html" class="topbar-link"><i class="bi bi-bar-chart-fill"></i> Media Bias</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg main-nav sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="../index.html">
+      <span class="brand-bv">BV</span>
+      <span class="brand-text">Harun<br><em>Info</em></span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-geo-alt"></i> Countries</a>
+          <ul class="dropdown-menu country-dropdown">
+            <li><a class="dropdown-item country-item" href="country.html?country=Bosnia"><span class="flag">🇧🇦</span> Bosnia & Herzegovina</a></li>
+            <li><a class="dropdown-item country-item" href="country.html?country=Serbia"><span class="flag">🇷🇸</span> Serbia</a></li>
+            <li><a class="dropdown-item country-item" href="country.html?country=Croatia"><span class="flag">🇭🇷</span> Croatia</a></li>
+            <li><a class="dropdown-item country-item" href="country.html?country=Slovenia"><span class="flag">🇸🇮</span> Slovenia</a></li>
+            <li><a class="dropdown-item country-item" href="country.html?country=Montenegro"><span class="flag">🇲🇪</span> Montenegro</a></li>
+            <li><a class="dropdown-item country-item" href="country.html?country=NorthMacedonia"><span class="flag">🇲🇰</span> North Macedonia</a></li>
+            <li><a class="dropdown-item country-item" href="country.html?country=Kosovo"><span class="flag">🇽🇰</span> Kosovo</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="bias.html"><i class="bi bi-bar-chart"></i> Media Bias</a></li>
+      </ul>
+      <div class="ms-auto auth-nav" id="authNav">
+        <a href="#" class="btn btn-outline-nav me-1" onclick="showModal('loginModal')">Login</a>
+        <a href="#" class="btn btn-fill-nav" onclick="showModal('registerModal')">Register</a>
+      </div>
+      <div class="ms-auto user-nav d-none" id="userNav">
+        <div class="dropdown">
+          <button class="btn btn-user dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle"></i> <span id="navUsername">User</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="feed.html"><i class="bi bi-rss me-2"></i>My Feed</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ARTICLE HEADER -->
+<header class="article-page-header" id="articleHeader">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div id="articleHeaderContent">
+          <!-- filled by JS -->
+          <div class="skeleton" style="height:16px;width:100px;margin-bottom:16px;"></div>
+          <div class="skeleton" style="height:48px;margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:48px;width:70%;margin-bottom:20px;"></div>
+          <div class="skeleton" style="height:16px;width:200px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ARTICLE BODY -->
+<main class="main-content">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+
+        <!-- Hero image -->
+        <img id="articleHeroImg" class="article-hero-img d-none" src="" alt=""/>
+
+        <!-- Bias meter card -->
+        <div class="bias-meter-card" id="biasMeterCard" style="display:none">
+          <div class="bias-meter-title"><i class="bi bi-bar-chart-fill me-2"></i>Media Bias Rating — <span id="biasSourceName"></span></div>
+          <p id="biasDescription" style="font-size:14px;color:var(--text-muted);margin-bottom:8px;"></p>
+          <div class="bias-spectrum-bar">
+            <div class="bias-indicator" id="biasIndicator" style="left:50%"></div>
+          </div>
+          <div class="bias-labels">
+            <span>Far Left</span><span>Left</span><span>Center</span><span>Right</span><span>Far Right</span>
+          </div>
+        </div>
+
+        <!-- Article text body -->
+        <div class="article-body" id="articleBody">
+          <div class="skeleton" style="height:20px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:20px;margin-bottom:12px;width:90%;"></div>
+          <div class="skeleton" style="height:20px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:20px;margin-bottom:12px;width:80%;"></div>
+          <div class="skeleton" style="height:20px;margin-bottom:12px;"></div>
+        </div>
+
+        <!-- Share / Save row -->
+        <div class="d-flex gap-3 mt-4 mb-4 flex-wrap align-items-center" id="articleActions" style="display:none!important">
+          <button class="btn btn-outline-nav" id="saveBtn" onclick="toggleSave()">
+            <i class="bi bi-bookmark me-1"></i> Save
+          </button>
+          <span style="font-size:13px;color:var(--text-muted)">Share:</span>
+          <a id="shareTwitter" href="#" target="_blank" class="topbar-link"><i class="bi bi-twitter-x" style="font-size:18px"></i></a>
+          <a id="shareFacebook" href="#" target="_blank" class="topbar-link"><i class="bi bi-facebook" style="font-size:18px"></i></a>
+        </div>
+
+        <!-- Related articles -->
+        <div id="relatedSection" class="mt-5" style="display:none">
+          <div class="section-header"><h2 class="section-title">Related Articles</h2></div>
+          <div id="relatedGrid" class="articles-grid"></div>
+        </div>
+
+        <!-- COMMENTS -->
+        <section class="comments-section">
+          <h2 class="comments-title"><i class="bi bi-chat-square-text me-2"></i>Comments <span id="commentCount" class="text-muted" style="font-size:18px"></span></h2>
+
+          <!-- Comment form -->
+          <div id="commentFormWrap">
+            <div class="login-to-comment" id="loginPrompt">
+              <i class="bi bi-lock" style="font-size:24px;display:block;margin-bottom:8px;color:var(--accent)"></i>
+              <strong>Sign in to comment</strong><br/>
+              <a href="#" onclick="showModal('loginModal')">Login</a> or <a href="#" onclick="showModal('registerModal')">Register</a> to join the conversation.
+            </div>
+            <div class="comment-form-card d-none" id="commentForm">
+              <div class="mb-2" style="font-weight:700;font-size:15px">Leave a comment</div>
+              <textarea class="comment-input" id="commentText" placeholder="Share your thoughts…" rows="3"></textarea>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <span id="commentFormError" class="text-danger" style="font-size:13px"></span>
+                <button class="btn-comment" onclick="postComment()">Post Comment <i class="bi bi-send ms-1"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments list -->
+          <div id="commentsList"></div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer mt-5">
+  <div class="container">
+    <div class="footer-bottom">
+      <p>© 2025 Balkanske Vijesti</p>
+    </div>
+  </div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content auth-modal">
+      <div class="modal-header border-0">
+        <h4 class="modal-title">Welcome Back</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="loginError" class="alert alert-danger d-none"></div>
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control auth-input" id="loginEmail"/></div>
+        <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control auth-input" id="loginPassword"/></div>
+        <button class="btn btn-auth w-100" onclick="doLogin()">Sign In <span id="loginSpinner" class="spinner-border spinner-border-sm d-none"></span></button>
+        <p class="text-center mt-3 auth-switch">No account? <a href="#" onclick="switchModal('loginModal','registerModal')">Register</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal fade" id="registerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content auth-modal">
+      <div class="modal-header border-0">
+        <h4 class="modal-title">Create Account</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="registerError" class="alert alert-danger d-none"></div>
+        <div id="registerSuccess" class="alert alert-success d-none"></div>
+        <div class="mb-3"><label class="form-label">Username</label><input type="text" class="form-control auth-input" id="regUsername"/></div>
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control auth-input" id="regEmail"/></div>
+        <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control auth-input" id="regPassword"/></div>
+        <div class="mb-3"><label class="form-label">Country</label>
+          <select class="form-select auth-input" id="regCountry">
+            <option value="">Select country</option>
+            <option value="Bosnia">Bosnia & Herzegovina</option>
+            <option value="Serbia">Serbia</option>
+            <option value="Croatia">Croatia</option>
+            <option value="Slovenia">Slovenia</option>
+            <option value="Montenegro">Montenegro</option>
+            <option value="NorthMacedonia">North Macedonia</option>
+            <option value="Kosovo">Kosovo</option>
+          </select>
+        </div>
+        <button class="btn btn-auth w-100" onclick="doRegister()">Create Account <span id="registerSpinner" class="spinner-border spinner-border-sm d-none"></span></button>
+        <p class="text-center mt-3 auth-switch">Have an account? <a href="#" onclick="switchModal('registerModal','loginModal')">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/article.js"></script>
+</body>
+</html>

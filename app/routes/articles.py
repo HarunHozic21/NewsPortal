@@ -4,11 +4,13 @@ from app import db
 from app.models.article import Article
 from app.models.saved_article import SavedArticle
 from app.utils.auth_helpers import role_required
+from app.models.comment import Comment
 
 articles_bp = Blueprint("articles", __name__)
 
 
 # ─── Public Endpoints ────────────────────────────────────────────────────────
+
 
 @articles_bp.route("/", methods=["GET"])
 def get_articles():
@@ -45,9 +47,11 @@ def get_articles():
         if bias_min is not None:
             query = query.filter(Article.source.has(bias_score=None) == False)
             from app.models.source import Source
+
             query = query.filter(Source.bias_score >= bias_min)
         if bias_max is not None:
             from app.models.source import Source
+
             query = query.filter(Source.bias_score <= bias_max)
 
     # Full-text search on title and description
@@ -63,13 +67,18 @@ def get_articles():
     query = query.order_by(Article.published_at.desc())
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
-    return jsonify({
-        "articles": [a.to_dict() for a in pagination.items],
-        "total": pagination.total,
-        "page": pagination.page,
-        "pages": pagination.pages,
-        "per_page": per_page,
-    }), 200
+    return (
+        jsonify(
+            {
+                "articles": [a.to_dict() for a in pagination.items],
+                "total": pagination.total,
+                "page": pagination.page,
+                "pages": pagination.pages,
+                "per_page": per_page,
+            }
+        ),
+        200,
+    )
 
 
 @articles_bp.route("/<int:article_id>", methods=["GET"])
@@ -80,6 +89,7 @@ def get_article(article_id):
 
 
 # ─── Admin Endpoints ─────────────────────────────────────────────────────────
+
 
 @articles_bp.route("/", methods=["POST"])
 @role_required("admin", "editor")
@@ -114,7 +124,14 @@ def update_article(article_id):
     article = Article.query.get_or_404(article_id)
     data = request.get_json()
 
-    updatable = ["title", "description", "content", "image_url", "is_active", "source_id"]
+    updatable = [
+        "title",
+        "description",
+        "content",
+        "image_url",
+        "is_active",
+        "source_id",
+    ]
     for field in updatable:
         if field in data:
             setattr(article, field, data[field])
@@ -135,14 +152,17 @@ def delete_article(article_id):
 
 # ─── Saved Articles (Authenticated Readers) ──────────────────────────────────
 
+
 @articles_bp.route("/<int:article_id>/save", methods=["POST"])
 @jwt_required()
 def save_article(article_id):
     """Bookmark an article for the current user."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     article = Article.query.get_or_404(article_id)
 
-    existing = SavedArticle.query.filter_by(user_id=user_id, article_id=article_id).first()
+    existing = SavedArticle.query.filter_by(
+        user_id=user_id, article_id=article_id
+    ).first()
     if existing:
         return jsonify({"message": "Article already saved"}), 200
 
@@ -157,8 +177,10 @@ def save_article(article_id):
 @jwt_required()
 def unsave_article(article_id):
     """Remove a bookmarked article for the current user."""
-    user_id = get_jwt_identity()
-    saved = SavedArticle.query.filter_by(user_id=user_id, article_id=article_id).first_or_404()
+    user_id = int(get_jwt_identity())
+    saved = SavedArticle.query.filter_by(
+        user_id=user_id, article_id=article_id
+    ).first_or_404()
     db.session.delete(saved)
     db.session.commit()
     return jsonify({"message": "Article unsaved"}), 200
@@ -168,6 +190,34 @@ def unsave_article(article_id):
 @jwt_required()
 def get_saved_articles():
     """Get all articles saved by the current user."""
-    user_id = get_jwt_identity()
-    saved = SavedArticle.query.filter_by(user_id=user_id).order_by(SavedArticle.saved_at.desc()).all()
+    user_id = int(get_jwt_identity())
+    saved = (
+        SavedArticle.query.filter_by(user_id=user_id)
+        .order_by(SavedArticle.saved_at.desc())
+        .all()
+    )
     return jsonify([s.to_dict() for s in saved]), 200
+
+
+@articles_bp.route("/<int:article_id>/comments", methods=["GET"])
+def get_comments(article_id):
+    comments = (
+        Comment.query.filter_by(article_id=article_id)
+        .order_by(Comment.created_at.asc())
+        .all()
+    )
+    return jsonify([c.to_dict() for c in comments]), 200
+
+
+@articles_bp.route("/<int:article_id>/comments", methods=["POST"])
+@jwt_required()
+def post_comment(article_id):
+    user_id = int(get_jwt_identity())
+    data = request.get_json()
+    text = data.get("text", "").strip()
+    if not text:
+        return jsonify({"message": "Comment cannot be empty"}), 400
+    comment = Comment(article_id=article_id, user_id=user_id, text=text)
+    db.session.add(comment)
+    db.session.commit()
+    return jsonify(comment.to_dict()), 201

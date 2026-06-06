@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -32,5 +32,14 @@ def create_app(config_name="default"):
     app.register_blueprint(articles_bp, url_prefix="/api/articles")
     app.register_blueprint(sources_bp, url_prefix="/api/sources")
     app.register_blueprint(categories_bp, url_prefix="/api/categories")
+
+    # Serve frontend
+    @app.route('/')
+    def index():
+        return send_from_directory('../frontend', 'index.html')
+
+    @app.route('/<path:path>')
+    def static_files(path):
+        return send_from_directory('../frontend', path)
 
     return app

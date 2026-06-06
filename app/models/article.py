@@ -7,15 +7,19 @@ class Article(db.Model):
     __tablename__ = "articles"
 
     id = db.Column(db.Integer, primary_key=True)
-    external_id = db.Column(db.String(255), unique=True, nullable=True)  # NewsDataAPI article_id
+    external_id = db.Column(
+        db.String(255), unique=True, nullable=True
+    )  # NewsDataAPI article_id
     title = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text, nullable=True)
     content = db.Column(db.Text, nullable=True)
     url = db.Column(db.String(500), nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
-    language = db.Column(db.String(50), nullable=True)                    # e.g. "bs", "hr", "sr"
+    language = db.Column(db.String(50), nullable=True)  # e.g. "bs", "hr", "sr"
     published_at = db.Column(db.DateTime, nullable=True)
-    fetched_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    fetched_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     # Foreign key
@@ -36,10 +40,13 @@ class Article(db.Model):
             "id": self.id,
             "title": self.title,
             "description": self.description,
+            "content": self.content,
             "url": self.url,
             "image_url": self.image_url,
             "language": self.language,
-            "published_at": self.published_at.isoformat() if self.published_at else None,
+            "published_at": (
+                self.published_at.isoformat() if self.published_at else None
+            ),
             "categories": [c.to_dict() for c in self.categories],
         }
         if include_source and self.source:

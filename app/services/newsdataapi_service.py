@@ -1,5 +1,7 @@
 import logging
 from datetime import datetime, timezone
+import urllib.request  # Built-in helper to avoid extra dependencies under time pressure
+from bs4 import BeautifulSoup
 from newsdataapi import NewsDataApiClient
 from app import db
 from app.models.article import Article
@@ -9,11 +11,43 @@ from app.models.category import Category
 logger = logging.getLogger(__name__)
 
 
+def scrape_full_text(url: str) -> str | None:
+    """
+    Fallback Web Scraper: Extracts readable paragraph text from an original
+    news URL when the free API tier restricts the content field.
+    """
+    if not url:
+        return None
+    try:
+        # Set a generic User-Agent header so news websites don't block the request
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            },
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            html = response.read()
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        # Strip away clutter (scripts, styles, navigations)
+        for element in soup(["script", "style", "nav", "header", "footer", "form"]):
+            element.extract()
+
+        # Find all main paragraph texts typical of news layouts
+        paragraphs = soup.find_all("p")
+        text_content = "\n\n".join(
+            [p.get_text().strip() for p in paragraphs if len(p.get_text().strip()) > 20]
+        )
+
+        return text_content if text_content else None
+    except Exception as e:
+        logger.warning(f"Failed to scrape text from {url}: {e}")
+        return None
+
+
 def get_or_create_source(source_name: str, domain: str, country: str) -> Source:
-    """
-    Find an existing source by domain, or create a new one with a neutral
-    bias score of 0.0. Admin can update the bias score later via the API.
-    """
     source = Source.query.filter_by(domain=domain).first()
     if not source:
         source = Source(
@@ -23,13 +57,12 @@ def get_or_create_source(source_name: str, domain: str, country: str) -> Source:
             bias_score=0.0,
         )
         db.session.add(source)
-        db.session.flush()  # get ID without committing
+        db.session.flush()
         logger.info(f"Created new source: {source.name} ({domain})")
     return source
 
 
 def get_or_create_category(name: str) -> Category:
-    """Find or create a category by name."""
     slug = name.lower().replace(" ", "-")
     category = Category.query.filter_by(slug=slug).first()
     if not category:
@@ -40,35 +73,24 @@ def get_or_create_category(name: str) -> Category:
 
 
 def parse_published_at(date_str: str | None) -> datetime | None:
-    """Parse the NewsDataAPI datetime string into a Python datetime object."""
     if not date_str:
         return None
     try:
-        return datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        return datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").replace(
+            tzinfo=timezone.utc
+        )
     except ValueError:
         return None
 
 
 def fetch_and_store_articles(app, api_key: str, countries: str, languages: str) -> int:
-    """
-    Fetch articles from NewsDataAPI and store them in the database.
-    Skips articles that already exist (by external_id).
-
-    Returns the number of newly stored articles.
-    """
     client = NewsDataApiClient(apikey=api_key)
     stored_count = 0
 
     with app.app_context():
         try:
-            response1 = client.news_api(
-                country="ba,rs,hr,mk,me",
-                language=languages,
-            )
-            response2 = client.news_api(
-                country="si,al",
-                language=languages,
-            )
+            response1 = client.news_api(country="ba,rs,hr,mk,me", language=languages)
+            response2 = client.news_api(country="si,al", language=languages)
 
             results = response1.get("results", []) + response2.get("results", [])
             logger.info(f"Fetched {len(results)} articles from NewsDataAPI")
@@ -77,24 +99,44 @@ def fetch_and_store_articles(app, api_key: str, countries: str, languages: str) 
                 external_id = item.get("article_id")
 
                 # Skip if already stored
-                if external_id and Article.query.filter_by(external_id=external_id).first():
+                if (
+                    external_id
+                    and Article.query.filter_by(external_id=external_id).first()
+                ):
                     continue
 
                 # Resolve source
                 source_url = item.get("source_url", "")
-                domain = source_url.replace("https://", "").replace("http://", "").strip("/")
+                domain = (
+                    source_url.replace("https://", "").replace("http://", "").strip("/")
+                )
                 source_name = item.get("source_name", domain)
-                country_code = (item.get("country") or ["ba"])[0]  # NewsDataAPI returns a list
+                country_code = (item.get("country") or ["ba"])[0]
 
                 source = get_or_create_source(source_name, domain, country_code)
+
+                # WORKAROUND: Extract the article's URL
+                article_url = item.get("link", "")
+
+                # If API field is empty/truncated, parse the live link directly
+                api_content = item.get("full_content") or item.get("content")
+                if not api_content and article_url:
+                    logger.info(
+                        f"Free API limit met. Scraping full content for: {article_url}"
+                    )
+                    article_content = scrape_full_text(article_url) or item.get(
+                        "description"
+                    )
+                else:
+                    article_content = api_content
 
                 # Build article
                 article = Article(
                     external_id=external_id,
                     title=item.get("title", "Untitled"),
                     description=item.get("description"),
-                    content=item.get("full_content") or item.get("content"),
-                    url=item.get("link", ""),
+                    content=article_content,  # Patched with scraped full text!
+                    url=article_url,
                     image_url=item.get("image_url"),
                     language=item.get("language"),
                     published_at=parse_published_at(item.get("pubDate")),
@@ -104,8 +146,7 @@ def fetch_and_store_articles(app, api_key: str, countries: str, languages: str) 
                 db.session.add(article)
                 db.session.flush()
 
-                # Attach categories
-                for cat_name in (item.get("category") or []):
+                for cat_name in item.get("category") or []:
                     if cat_name:
                         category = get_or_create_category(cat_name)
                         article.categories.append(category)
