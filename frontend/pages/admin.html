@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Balkanske Vijesti</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    :root {
+      --admin-bg: #0d0f14;
+      --admin-sidebar: #12151c;
+      --admin-card: #181c25;
+      --admin-border: rgba(255,255,255,0.07);
+      --admin-accent: #c8a96e;
+      --admin-danger: #e05252;
+      --admin-success: #52c87a;
+      --admin-warning: #e0a052;
+      --admin-info: #528be0;
+    }
+
+    body { background: var(--admin-bg); color: #d0d4e0; font-family: 'Source Sans 3', sans-serif; }
+
+    /* ── Layout ── */
+    .admin-wrap { display: flex; min-height: 100vh; }
+
+    .admin-sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--admin-sidebar);
+      border-right: 1px solid var(--admin-border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      padding-bottom: 20px;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--admin-border);
+      margin-bottom: 12px;
+    }
+    .sidebar-logo .brand-bv {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--admin-accent);
+      margin-right: 8px;
+    }
+    .sidebar-logo .brand-text {
+      font-size: 13px;
+      line-height: 1.2;
+      color: rgba(255,255,255,0.5);
+    }
+    .sidebar-logo .admin-badge {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--admin-accent);
+      margin-top: 4px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 0 10px; }
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      padding: 14px 10px 6px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .sidebar-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .sidebar-link.active { background: rgba(200,169,110,0.15); color: var(--admin-accent); }
+    .sidebar-link i { width: 18px; text-align: center; font-size: 15px; }
+    .sidebar-link .badge-count {
+      margin-left: auto;
+      background: var(--admin-danger);
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--admin-border);
+    }
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--admin-accent);
+      color: var(--admin-sidebar);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .sidebar-user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user-role { font-size: 11px; color: var(--admin-accent); text-transform: capitalize; }
+
+    /* ── Main content ── */
+    .admin-main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .admin-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .admin-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+    .admin-page-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    .btn-admin-primary {
+      background: var(--admin-accent);
+      color: #0d0f14;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-admin-primary:hover { opacity: 0.85; }
+    .btn-admin-danger {
+      background: var(--admin-danger);
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-admin-danger:hover { opacity: 0.8; }
+    .btn-admin-success {
+      background: var(--admin-success);
+      color: #0d0f14;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-admin-success:hover { opacity: 0.8; }
+    .btn-admin-warning {
+      background: var(--admin-warning);
+      color: #0d0f14;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-admin-ghost {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.7);
+      border: 1px solid var(--admin-border);
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-admin-ghost:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── Stat cards ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-icon {
+      width: 48px; height: 48px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .stat-icon.blue { background: rgba(82,139,224,0.15); color: var(--admin-info); }
+    .stat-icon.gold { background: rgba(200,169,110,0.15); color: var(--admin-accent); }
+    .stat-icon.green { background: rgba(82,200,122,0.15); color: var(--admin-success); }
+    .stat-icon.red { background: rgba(224,82,82,0.15); color: var(--admin-danger); }
+    .stat-value { font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+    .stat-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; text-transform: uppercase; letter-spacing: .5px; }
+
+    /* ── Data table ── */
+    .admin-card {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 10px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .admin-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--admin-border);
+    }
+    .admin-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .admin-card-title i { color: var(--admin-accent); }
+
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th {
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.35);
+      border-bottom: 1px solid var(--admin-border);
+      text-align: left;
+    }
+    .admin-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+    .role-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .role-admin { background: rgba(224,82,82,0.2); color: var(--admin-danger); }
+    .role-editor { background: rgba(200,169,110,0.2); color: var(--admin-accent); }
+    .role-writer { background: rgba(82,139,224,0.2); color: var(--admin-info); }
+    .role-reader { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .status-active { background: rgba(82,200,122,0.15); color: var(--admin-success); }
+    .status-inactive { background: rgba(224,82,82,0.12); color: var(--admin-danger); }
+    .status-pending { background: rgba(224,160,82,0.15); color: var(--admin-warning); }
+
+    /* ── Tabs ── */
+    .admin-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--admin-border);
+      margin-bottom: 24px;
+    }
+    .admin-tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .admin-tab:hover { color: rgba(255,255,255,0.75); }
+    .admin-tab.active { color: var(--admin-accent); border-bottom-color: var(--admin-accent); }
+
+    /* ── Panels ── */
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+
+    /* ── Search / Filter ── */
+    .admin-filter-row {
+      display: flex;
+      gap: 10px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--admin-border);
+      align-items: center;
+    }
+    .admin-input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--admin-border);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .admin-input:focus { border-color: var(--admin-accent); }
+    .admin-input::placeholder { color: rgba(255,255,255,0.25); }
+    .admin-select {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--admin-border);
+      color: rgba(255,255,255,0.75);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+    .admin-select option { background: #181c25; }
+
+    /* ── Toast ── */
+    .admin-toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-left: 3px solid var(--admin-success);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s;
+    }
+    .admin-toast.show { opacity: 1; transform: translateY(0); }
+    .admin-toast.error { border-left-color: var(--admin-danger); }
+
+    /* ── Modal ── */
+    .admin-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .admin-modal-overlay.open { display: flex; }
+    .admin-modal {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      padding: 28px;
+      width: 460px;
+      max-width: 95vw;
+    }
+    .admin-modal h3 { font-family: 'Playfair Display', serif; color: #fff; margin-bottom: 20px; font-size: 20px; }
+    .admin-modal label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 6px; margin-top: 16px; }
+    .admin-modal .modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+    /* ── Pagination ── */
+    .admin-pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--admin-border);
+      justify-content: flex-end;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+    }
+    .page-btn {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--admin-border);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+    .page-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .page-btn.active { background: var(--admin-accent); color: #0d0f14; border-color: var(--admin-accent); font-weight: 700; }
+
+    /* ── Access denied ── */
+    .access-denied {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+      gap: 16px;
+    }
+    .access-denied .icon { font-size: 64px; opacity: 0.3; }
+    .access-denied h2 { font-family: 'Playfair Display', serif; color: #fff; font-size: 28px; }
+    .access-denied p { color: rgba(255,255,255,0.4); font-size: 15px; max-width: 360px; }
+
+    /* ── Loading skeleton ── */
+    .skeleton-row { height: 44px; background: rgba(255,255,255,0.04); border-radius: 4px; margin: 6px 16px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── Role pill select in table ── */
+    .role-select {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--admin-border);
+      color: rgba(255,255,255,0.8);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
+    }
+    .role-select option { background: #181c25; }
+
+    @media (max-width: 768px) {
+      .admin-sidebar { transform: translateX(-100%); transition: transform .3s; }
+      .admin-sidebar.open { transform: translateX(0); }
+      .admin-main { margin-left: 0; padding: 16px; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-wrap">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-logo">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="brand-bv">BV</span>
+        <div class="brand-text">Balkanske Vijesti<span class="admin-badge">Admin Panel</span></div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <button class="sidebar-link active" onclick="showPanel('dashboard')">
+        <i class="bi bi-grid-1x2-fill"></i> Dashboard
+      </button>
+
+      <div class="nav-section-label">Content</div>
+      <button class="sidebar-link" onclick="showPanel('articles')">
+        <i class="bi bi-newspaper"></i> Articles
+        <span class="badge-count" id="pendingBadge" style="display:none">0</span>
+      </button>
+      <button class="sidebar-link" onclick="showPanel('sources')">
+        <i class="bi bi-broadcast"></i> Sources
+      </button>
+
+      <div class="nav-section-label" id="usersNavLabel">Users</div>
+      <button class="sidebar-link" onclick="showPanel('users')" id="usersNavBtn">
+        <i class="bi bi-people-fill"></i> Users
+      </button>
+
+      <div class="nav-section-label">Tools</div>
+      <button class="sidebar-link" onclick="triggerFetch()" id="fetchBtn">
+        <i class="bi bi-cloud-download"></i> Fetch News
+      </button>
+      <a class="sidebar-link" href="../index.html">
+        <i class="bi bi-arrow-left-circle"></i> Back to Site
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebarUsername">Loading…</div>
+          <div class="sidebar-user-role" id="sidebarRole">—</div>
+        </div>
+        <button onclick="doLogout()" title="Logout" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:16px;cursor:pointer;padding:4px">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="admin-main">
+
+    <!-- ACCESS DENIED (shown if not admin/editor) -->
+    <div class="access-denied d-none" id="accessDenied">
+      <div class="icon">🔒</div>
+      <h2>Access Denied</h2>
+      <p>You need admin or editor privileges to access this panel.</p>
+      <a href="../index.html" class="btn-admin-primary" style="text-decoration:none"><i class="bi bi-arrow-left"></i> Back to Site</a>
+    </div>
+
+    <!-- DASHBOARD PANEL -->
+    <div class="admin-panel active" id="panel-dashboard">
+      <div class="admin-topbar">
+        <div>
+          <h1 class="admin-page-title">Dashboard</h1>
+          <div class="admin-page-sub">Welcome back. Here's what's happening.</div>
+        </div>
+        <button class="btn-admin-primary" onclick="triggerFetch()" id="fetchBtnTop">
+          <i class="bi bi-cloud-download"></i> Fetch Latest News
+        </button>
+      </div>
+
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-newspaper"></i></div><div><div class="stat-value" id="statArticles">—</div><div class="stat-label">Published Articles</div></div></div>
+        <div class="stat-card"><div class="stat-icon gold"><i class="bi bi-people-fill"></i></div><div><div class="stat-value" id="statUsers">—</div><div class="stat-label">Total Users</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="bi bi-broadcast"></i></div><div><div class="stat-value" id="statSources">—</div><div class="stat-label">Active Sources</div></div></div>
+        <div class="stat-card"><div class="stat-icon red"><i class="bi bi-hourglass-split"></i></div><div><div class="stat-value" id="statPending">—</div><div class="stat-label">Pending Review</div></div></div>
+      </div>
+
+      <!-- Role breakdown -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title"><i class="bi bi-pie-chart-fill"></i> Users by Role</div>
+        </div>
+        <div style="padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px" id="roleBreakdown">
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+      </div>
+
+      <!-- Recent articles -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title"><i class="bi bi-clock-history"></i> Recent Articles</div>
+          <button class="btn-admin-ghost" onclick="showPanel('articles')">View All</button>
+        </div>
+        <div id="recentArticlesTable"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+      </div>
+    </div>
+
+    <!-- ARTICLES PANEL -->
+    <div class="admin-panel" id="panel-articles">
+      <div class="admin-topbar">
+        <div>
+          <h1 class="admin-page-title">Articles</h1>
+          <div class="admin-page-sub">Manage and moderate articles</div>
+        </div>
+        <button class="btn-admin-primary" onclick="openSubmitModal()">
+          <i class="bi bi-plus-lg"></i> Submit Article
+        </button>
+      </div>
+
+      <div class="admin-tabs" id="articleTabs">
+        <button class="admin-tab active" onclick="setArticleTab('inactive', this)">⏳ Pending</button>
+        <button class="admin-tab" onclick="setArticleTab('active', this)">✅ Published</button>
+        <button class="admin-tab" onclick="setArticleTab('', this)">All</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-filter-row">
+          <input type="text" class="admin-input" placeholder="Search articles…" id="articleSearch" oninput="filterArticles()" style="flex:1"/>
+        </div>
+        <div id="articlesTableWrap">
+          <div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>
+        </div>
+        <div class="admin-pagination" id="articlesPagination"></div>
+      </div>
+    </div>
+
+    <!-- SOURCES PANEL -->
+    <div class="admin-panel" id="panel-sources">
+      <div class="admin-topbar">
+        <div>
+          <h1 class="admin-page-title">Sources</h1>
+          <div class="admin-page-sub">Manage news sources and bias scores</div>
+        </div>
+        <button class="btn-admin-primary" onclick="openAddSourceModal()">
+          <i class="bi bi-plus-lg"></i> Add Source
+        </button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-filter-row">
+          <input type="text" class="admin-input" placeholder="Search sources…" id="sourceSearch" oninput="filterSources()" style="flex:1"/>
+          <select class="admin-select" id="sourceCountryFilter" onchange="loadSources()">
+            <option value="">All Countries</option>
+            <option value="ba">Bosnia</option>
+            <option value="rs">Serbia</option>
+            <option value="hr">Croatia</option>
+            <option value="si">Slovenia</option>
+            <option value="me">Montenegro</option>
+            <option value="mk">N. Macedonia</option>
+            <option value="xk">Kosovo</option>
+          </select>
+        </div>
+        <div id="sourcesTableWrap">
+          <div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS PANEL (admin only) -->
+    <div class="admin-panel" id="panel-users">
+      <div class="admin-topbar">
+        <div>
+          <h1 class="admin-page-title">Users</h1>
+          <div class="admin-page-sub">Manage user accounts and roles</div>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="setUserTab('all', this)">All Users</button>
+        <button class="admin-tab" onclick="setUserTab('writer', this)">Writers</button>
+        <button class="admin-tab" onclick="setUserTab('editor', this)">Editors</button>
+        <button class="admin-tab" onclick="setUserTab('admin', this)">Admins</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-filter-row">
+          <input type="text" class="admin-input" placeholder="Search users…" id="userSearch" oninput="filterUsers()" style="flex:1"/>
+        </div>
+        <div id="usersTableWrap">
+          <div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>
+        </div>
+        <div class="admin-pagination" id="usersPagination"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── MODALS ── -->
+
+<!-- Submit / Create Article Modal -->
+<div class="admin-modal-overlay" id="submitArticleModal">
+  <div class="admin-modal">
+    <h3>Submit Article for Review</h3>
+    <label>Title *</label>
+    <input class="admin-input" style="width:100%" id="ma-title" placeholder="Article title"/>
+    <label>URL *</label>
+    <input class="admin-input" style="width:100%" id="ma-url" placeholder="https://…"/>
+    <label>Description</label>
+    <textarea class="admin-input" style="width:100%;height:70px;resize:vertical" id="ma-desc" placeholder="Short summary…"></textarea>
+    <label>Content</label>
+    <textarea class="admin-input" style="width:100%;height:100px;resize:vertical" id="ma-content" placeholder="Full article body…"></textarea>
+    <label>Image URL</label>
+    <input class="admin-input" style="width:100%" id="ma-image" placeholder="https://…"/>
+    <div id="ma-error" class="mt-2" style="color:var(--admin-danger);font-size:13px;display:none"></div>
+    <div class="modal-actions">
+      <button class="btn-admin-ghost" onclick="closeModal('submitArticleModal')">Cancel</button>
+      <button class="btn-admin-primary" onclick="submitArticle()"><i class="bi bi-send"></i> Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Source Modal -->
+<div class="admin-modal-overlay" id="addSourceModal">
+  <div class="admin-modal">
+    <h3 id="sourceModalTitle">Add Source</h3>
+    <input type="hidden" id="sm-id"/>
+    <label>Name *</label>
+    <input class="admin-input" style="width:100%" id="sm-name" placeholder="Klix.ba"/>
+    <label>Domain *</label>
+    <input class="admin-input" style="width:100%" id="sm-domain" placeholder="klix.ba"/>
+    <label>Country *</label>
+    <select class="admin-select admin-input" style="width:100%" id="sm-country">
+      <option value="ba">Bosnia (ba)</option>
+      <option value="rs">Serbia (rs)</option>
+      <option value="hr">Croatia (hr)</option>
+      <option value="si">Slovenia (si)</option>
+      <option value="me">Montenegro (me)</option>
+      <option value="mk">N. Macedonia (mk)</option>
+      <option value="xk">Kosovo (xk)</option>
+    </select>
+    <label>Bias Score (-1.0 far left → 1.0 far right)</label>
+    <input class="admin-input" style="width:100%" type="number" step="0.1" min="-1" max="1" id="sm-bias" value="0"/>
+    <label>Description</label>
+    <textarea class="admin-input" style="width:100%;height:60px;resize:vertical" id="sm-desc"></textarea>
+    <div id="sm-error" class="mt-2" style="color:var(--admin-danger);font-size:13px;display:none"></div>
+    <div class="modal-actions">
+      <button class="btn-admin-ghost" onclick="closeModal('addSourceModal')">Cancel</button>
+      <button class="btn-admin-primary" onclick="saveSource()"><i class="bi bi-check2"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="admin-toast" id="adminToast">
+  <i class="bi bi-check-circle-fill"></i>
+  <span id="adminToastMsg">Done!</span>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:5000/api';
+
+// ─── Auth helpers ─────────────────────────────────────
+function getToken() { return localStorage.getItem('bv_token'); }
+function getUser() { try { return JSON.parse(localStorage.getItem('bv_user')); } catch { return null; } }
+
+function authHeaders() {
+  const t = getToken();
+  return { 'Content-Type': 'application/json', ...(t ? { 'Authorization': `Bearer ${t}` } : {}) };
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(`${API}${path}`, { headers: authHeaders(), ...opts });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
+  return data;
+}
+
+// ─── Init ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  const user = getUser();
+  if (!user || !['admin'].includes(user.role)) {
+    document.getElementById('accessDenied').classList.remove('d-none');
+    document.getElementById('adminSidebar').style.display = 'none';
+    document.querySelector('.admin-main').style.marginLeft = '0';
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    return;
+  }
+
+  // Set sidebar user info
+  document.getElementById('sidebarUsername').textContent = user.username || user.email;
+  document.getElementById('sidebarRole').textContent = user.role;
+  document.getElementById('sidebarAvatar').textContent = (user.username || 'A')[0].toUpperCase();
+
+  await loadStats();
+  await loadRecentArticles();
+});
+
+// ─── Panel switching ──────────────────────────────────
+function showPanel(name) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.getElementById(`panel-${name}`).classList.add('active');
+  // Activate sidebar link
+  document.querySelectorAll('.sidebar-link').forEach(l => {
+    if (l.textContent.toLowerCase().includes(name.toLowerCase())) l.classList.add('active');
+  });
+
+  if (name === 'articles') loadArticles();
+  if (name === 'sources') loadSources();
+  if (name === 'users') loadUsers();
+}
+
+// ─── STATS ────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const data = await apiFetch('/admin/stats');
+    document.getElementById('statArticles').textContent = data.total_articles ?? '—';
+    document.getElementById('statUsers').textContent = data.total_users ?? '—';
+    document.getElementById('statSources').textContent = data.total_sources ?? '—';
+    document.getElementById('statPending').textContent = data.pending_articles ?? '—';
+
+    if (data.pending_articles > 0) {
+      const badge = document.getElementById('pendingBadge');
+      badge.textContent = data.pending_articles;
+      badge.style.display = 'inline';
+    }
+
+    const roles = data.users_by_role || {};
+    const rb = document.getElementById('roleBreakdown');
+    rb.innerHTML = Object.entries(roles).map(([role, count]) => `
+      <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:#fff">${count}</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.4);margin-top:4px">${role}s</div>
+      </div>`).join('');
+  } catch (e) {
+    console.warn('Stats load failed:', e.message);
+  }
+}
+
+// ─── RECENT ARTICLES (dashboard) ──────────────────────
+async function loadRecentArticles() {
+  try {
+    const data = await apiFetch('/admin/articles?per_page=5&status=active');
+    const articles = data.articles || [];
+    renderArticlesTable(articles, 'recentArticlesTable', false);
+  } catch {
+    document.getElementById('recentArticlesTable').innerHTML = '<div style="padding:20px;text-align:center;color:rgba(255,255,255,.3);font-size:13px">Could not load articles</div>';
+  }
+}
+
+// ─── ARTICLES ─────────────────────────────────────────
+let allArticles = [], articlesPage = 1, currentArticleStatus = 'inactive';
+
+function setArticleTab(status, btn) {
+  document.querySelectorAll('#articleTabs .admin-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  currentArticleStatus = status;
+  articlesPage = 1;
+  loadArticles();
+}
+
+async function loadArticles() {
+  const wrap = document.getElementById('articlesTableWrap');
+  wrap.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>';
+  try {
+    const q = new URLSearchParams({ page: articlesPage, per_page: 20, ...(currentArticleStatus ? { status: currentArticleStatus } : {}) });
+    const data = await apiFetch(`/admin/articles?${q}`);
+    allArticles = data.articles || [];
+    renderArticlesTable(allArticles, 'articlesTableWrap', true);
+    renderPagination('articlesPagination', data.page, data.pages, (p) => { articlesPage = p; loadArticles(); });
+  } catch (e) {
+    wrap.innerHTML = `<div style="padding:20px;color:var(--admin-danger);font-size:13px">${e.message}</div>`;
+  }
+}
+
+function filterArticles() {
+  const q = document.getElementById('articleSearch').value.toLowerCase();
+  const filtered = allArticles.filter(a => a.title?.toLowerCase().includes(q) || a.url?.toLowerCase().includes(q));
+  renderArticlesTable(filtered, 'articlesTableWrap', true);
+}
+
+function renderArticlesTable(articles, containerId, showActions) {
+  const wrap = document.getElementById(containerId);
+  if (!articles.length) {
+    wrap.innerHTML = `<div style="padding:30px;text-align:center;color:rgba(255,255,255,.3);font-size:14px">
+      ${currentArticleStatus === 'inactive' ? 'No pending articles 🎉' : 'No articles found'}
+    </div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="admin-table">
+      <thead><tr>
+        <th>Title</th>
+        <th>Source</th>
+        <th>Status</th>
+        <th>Date</th>
+        ${showActions ? '<th>Actions</th>' : ''}
+      </tr></thead>
+      <tbody>
+        ${articles.map(a => `
+          <tr id="arow-${a.id}">
+            <td style="max-width:320px">
+              <a href="${a.url}" target="_blank" style="color:#fff;text-decoration:none;font-weight:600;font-size:13px;line-height:1.3;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(a.title)}">${escHtml(a.title)}</a>
+            </td>
+            <td style="font-size:12px;color:rgba(255,255,255,.5)">${a.source?.name || '—'}</td>
+            <td>${a.is_active
+              ? '<span class="status-badge status-active"><i class="bi bi-circle-fill" style="font-size:7px"></i> Active</span>'
+              : '<span class="status-badge status-pending"><i class="bi bi-hourglass" style="font-size:9px"></i> Pending</span>'
+            }</td>
+            <td style="font-size:12px;color:rgba(255,255,255,.4)">${a.published_at ? new Date(a.published_at).toLocaleDateString('en-GB') : '—'}</td>
+            ${showActions ? `<td>
+              <div style="display:flex;gap:6px">
+                ${!a.is_active ? `<button class="btn-admin-success" onclick="approveArticle(${a.id})">Approve</button>` : ''}
+                <button class="btn-admin-danger" onclick="deleteArticle(${a.id})">${a.is_active ? 'Unpublish' : 'Delete'}</button>
+              </div>
+            </td>` : ''}
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function approveArticle(id) {
+  try {
+    await apiFetch(`/admin/articles/${id}/approve`, { method: 'POST' });
+    toast('Article approved and published');
+    document.getElementById(`arow-${id}`)?.remove();
+    await loadStats();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function deleteArticle(id) {
+  if (!confirm('Are you sure?')) return;
+  try {
+    await apiFetch(`/admin/articles/${id}/reject`, { method: 'POST' });
+    toast('Article removed');
+    document.getElementById(`arow-${id}`)?.remove();
+    await loadStats();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ─── SOURCES ──────────────────────────────────────────
+let allSources = [];
+
+async function loadSources() {
+  const country = document.getElementById('sourceCountryFilter')?.value || '';
+  const wrap = document.getElementById('sourcesTableWrap');
+  wrap.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>';
+  try {
+    const q = country ? `?country=${country}` : '';
+    const data = await apiFetch(`/sources/${q}`);
+    allSources = Array.isArray(data) ? data : (data.sources || []);
+    renderSourcesTable(allSources);
+  } catch (e) {
+    wrap.innerHTML = `<div style="padding:20px;color:var(--admin-danger);font-size:13px">${e.message}</div>`;
+  }
+}
+
+function filterSources() {
+  const q = document.getElementById('sourceSearch').value.toLowerCase();
+  const filtered = allSources.filter(s => s.name?.toLowerCase().includes(q) || s.domain?.toLowerCase().includes(q));
+  renderSourcesTable(filtered);
+}
+
+function renderSourcesTable(sources) {
+  const wrap = document.getElementById('sourcesTableWrap');
+  if (!sources.length) {
+    wrap.innerHTML = '<div style="padding:30px;text-align:center;color:rgba(255,255,255,.3);font-size:14px">No sources found</div>';
+    return;
+  }
+  const biasColors = { 'Far Left': '#528be0', 'Left': '#7cb9e8', 'Center': '#52c87a', 'Right': '#e0a052', 'Far Right': '#e05252' };
+  wrap.innerHTML = `
+    <table class="admin-table">
+      <thead><tr>
+        <th>Name</th>
+        <th>Domain</th>
+        <th>Country</th>
+        <th>Bias</th>
+        <th>Score</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr></thead>
+      <tbody>
+        ${sources.map(s => `
+          <tr>
+            <td style="font-weight:600;color:#fff">${escHtml(s.name)}</td>
+            <td style="font-size:12px;color:rgba(255,255,255,.5)">${escHtml(s.domain)}</td>
+            <td style="font-size:12px"><span style="text-transform:uppercase;letter-spacing:.5px">${s.country}</span></td>
+            <td><span style="font-size:11px;font-weight:700;color:${biasColors[s.bias_label]||'#fff'}">${s.bias_label||'—'}</span></td>
+            <td style="font-size:12px">${(s.bias_score??0).toFixed(2)}</td>
+            <td>${s.is_active
+              ? '<span class="status-badge status-active">Active</span>'
+              : '<span class="status-badge status-inactive">Inactive</span>'
+            }</td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="btn-admin-ghost" onclick="openEditSourceModal(${s.id})">Edit</button>
+                <button class="btn-admin-danger" onclick="deactivateSource(${s.id})">${s.is_active ? 'Disable' : 'Enable'}</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function openAddSourceModal() {
+  document.getElementById('sourceModalTitle').textContent = 'Add Source';
+  document.getElementById('sm-id').value = '';
+  document.getElementById('sm-name').value = '';
+  document.getElementById('sm-domain').value = '';
+  document.getElementById('sm-bias').value = '0';
+  document.getElementById('sm-desc').value = '';
+  document.getElementById('sm-error').style.display = 'none';
+  document.getElementById('addSourceModal').classList.add('open');
+}
+
+function openEditSourceModal(id) {
+  const s = allSources.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('sourceModalTitle').textContent = 'Edit Source';
+  document.getElementById('sm-id').value = s.id;
+  document.getElementById('sm-name').value = s.name;
+  document.getElementById('sm-domain').value = s.domain;
+  document.getElementById('sm-country').value = s.country;
+  document.getElementById('sm-bias').value = s.bias_score;
+  document.getElementById('sm-desc').value = s.description || '';
+  document.getElementById('sm-error').style.display = 'none';
+  document.getElementById('addSourceModal').classList.add('open');
+}
+
+async function saveSource() {
+  const id = document.getElementById('sm-id').value;
+  const body = {
+    name: document.getElementById('sm-name').value.trim(),
+    domain: document.getElementById('sm-domain').value.trim(),
+    country: document.getElementById('sm-country').value,
+    bias_score: parseFloat(document.getElementById('sm-bias').value),
+    description: document.getElementById('sm-desc').value.trim(),
+  };
+  const errEl = document.getElementById('sm-error');
+  if (!body.name || !body.domain) {
+    errEl.textContent = 'Name and domain are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    if (id) {
+      await apiFetch(`/sources/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Source updated');
+    } else {
+      await apiFetch('/sources/', { method: 'POST', body: JSON.stringify(body) });
+      toast('Source created');
+    }
+    closeModal('addSourceModal');
+    loadSources();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function deactivateSource(id) {
+  const s = allSources.find(x => x.id === id);
+  if (!s) return;
+  try {
+    await apiFetch(`/sources/${id}`, { method: 'PUT', body: JSON.stringify({ is_active: !s.is_active }) });
+    toast(s.is_active ? 'Source disabled' : 'Source enabled');
+    loadSources();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ─── USERS ────────────────────────────────────────────
+let allUsers = [], usersPage = 1, activeUserRole = '';
+
+async function loadUsers(role) {
+  if (role !== undefined) activeUserRole = role;
+  const wrap = document.getElementById('usersTableWrap');
+  wrap.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>';
+  try {
+    const q = new URLSearchParams({ page: usersPage, per_page: 20, ...(activeUserRole ? { role: activeUserRole } : {}) });
+    const data = await apiFetch(`/admin/users?${q}`);
+    allUsers = data.users || [];
+    renderUsersTable(allUsers);
+    renderPagination('usersPagination', data.page, data.pages, (p) => { usersPage = p; loadUsers(); });
+  } catch (e) {
+    wrap.innerHTML = `<div style="padding:20px;color:var(--admin-danger);font-size:13px">${e.message}</div>`;
+  }
+}
+
+function setUserTab(role, btn) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  usersPage = 1;
+  loadUsers(role === 'all' ? '' : role);
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  const filtered = allUsers.filter(u => u.username?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
+  renderUsersTable(filtered);
+}
+
+function renderUsersTable(users) {
+  const wrap = document.getElementById('usersTableWrap');
+  if (!users.length) {
+    wrap.innerHTML = '<div style="padding:30px;text-align:center;color:rgba(255,255,255,.3);font-size:14px">No users found</div>';
+    return;
+  }
+  const currentUser = getUser();
+  wrap.innerHTML = `
+    <table class="admin-table">
+      <thead><tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Joined</th>
+        <th>Actions</th>
+      </tr></thead>
+      <tbody>
+        ${users.map(u => `
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:30px;height:30px;border-radius:50%;background:rgba(200,169,110,0.25);color:var(--admin-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${(u.username||'U')[0].toUpperCase()}</div>
+                <span style="font-weight:600;color:#fff">${escHtml(u.username)}</span>
+                ${u.id === currentUser?.id ? '<span style="font-size:10px;background:rgba(200,169,110,.2);color:var(--admin-accent);padding:1px 6px;border-radius:4px;font-weight:700">You</span>' : ''}
+              </div>
+            </td>
+            <td style="font-size:12px;color:rgba(255,255,255,.5)">${escHtml(u.email)}</td>
+            <td>
+              <select class="role-select" onchange="changeRole(${u.id}, this.value)" ${u.id === currentUser?.id ? 'disabled' : ''}>
+                ${['reader','writer','editor','admin'].map(r => `<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
+              </select>
+            </td>
+            <td>${u.is_active
+              ? '<span class="status-badge status-active">Active</span>'
+              : '<span class="status-badge status-inactive">Inactive</span>'
+            }</td>
+            <td style="font-size:12px;color:rgba(255,255,255,.35)">${u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB') : '—'}</td>
+            <td>
+              ${u.id !== currentUser?.id ? `
+                <button class="btn-admin-danger" onclick="toggleUserActive(${u.id}, ${u.is_active})">${u.is_active ? 'Disable' : 'Enable'}</button>
+              ` : '<span style="font-size:12px;color:rgba(255,255,255,.2)">—</span>'}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function changeRole(userId, newRole) {
+  try {
+    await apiFetch(`/admin/users/${userId}`, { method: 'PUT', body: JSON.stringify({ role: newRole }) });
+    toast(`Role updated to ${newRole}`);
+    loadStats();
+  } catch (e) { toast(e.message, 'error'); loadUsers(); }
+}
+
+async function toggleUserActive(userId, currentlyActive) {
+  try {
+    await apiFetch(`/admin/users/${userId}`, { method: 'PUT', body: JSON.stringify({ is_active: !currentlyActive }) });
+    toast(currentlyActive ? 'User disabled' : 'User enabled');
+    loadUsers();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ─── SUBMIT ARTICLE ───────────────────────────────────
+function openSubmitModal() {
+  ['ma-title','ma-url','ma-desc','ma-content','ma-image'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ma-error').style.display = 'none';
+  document.getElementById('submitArticleModal').classList.add('open');
+}
+
+async function submitArticle() {
+  const title = document.getElementById('ma-title').value.trim();
+  const url = document.getElementById('ma-url').value.trim();
+  const errEl = document.getElementById('ma-error');
+  if (!title || !url) {
+    errEl.textContent = 'Title and URL are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    await apiFetch('/writer/submit', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        url,
+        description: document.getElementById('ma-desc').value.trim(),
+        content: document.getElementById('ma-content').value.trim(),
+        image_url: document.getElementById('ma-image').value.trim(),
+      })
+    });
+    toast('Article submitted for review!');
+    closeModal('submitArticleModal');
+    loadArticles();
+    loadStats();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+// ─── FETCH NEWS ───────────────────────────────────────
+async function triggerFetch() {
+  const btn = document.getElementById('fetchBtn');
+  const btnTop = document.getElementById('fetchBtnTop');
+  const label = '<i class="bi bi-arrow-repeat spin"></i> Fetching…';
+  if (btn) { btn.innerHTML = label; btn.disabled = true; }
+  if (btnTop) { btnTop.innerHTML = label; btnTop.disabled = true; }
+  try {
+    const data = await apiFetch('/admin/fetch-news', { method: 'POST' });
+    toast(data.message || `Fetched ${data.count || 0} new articles`);
+    loadStats();
+    loadRecentArticles();
+  } catch (e) {
+    toast(e.message || 'Fetch failed', 'error');
+  } finally {
+    const orig1 = '<i class="bi bi-cloud-download"></i> Fetch News';
+    const orig2 = '<i class="bi bi-cloud-download"></i> Fetch Latest News';
+    if (btn) { btn.innerHTML = orig1; btn.disabled = false; }
+    if (btnTop) { btnTop.innerHTML = orig2; btnTop.disabled = false; }
+  }
+}
+
+// ─── PAGINATION ───────────────────────────────────────
+function renderPagination(containerId, current, total, onChange) {
+  const el = document.getElementById(containerId);
+  if (!el || total <= 1) { if (el) el.innerHTML = ''; return; }
+  let html = `<span>Page ${current} of ${total}</span>`;
+  html += `<button class="page-btn" onclick="(${onChange.toString()})(${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  for (let i = Math.max(1,current-2); i <= Math.min(total, current+2); i++) {
+    html += `<button class="page-btn ${i===current?'active':''}" onclick="(${onChange.toString()})(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="(${onChange.toString()})(${current+1})" ${current>=total?'disabled':''}>›</button>`;
+  el.innerHTML = html;
+}
+
+// ─── Helpers ──────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('adminToast');
+  const msgEl = document.getElementById('adminToastMsg');
+  el.className = `admin-toast ${type}`;
+  el.querySelector('i').className = `bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'}`;
+  msgEl.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function doLogout() {
+  localStorage.removeItem('bv_token');
+  localStorage.removeItem('bv_user');
+  window.location.href = '../index.html';
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.admin-modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+</script>
+
+<style>
+.spin { display:inline-block; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+</body>
+</html>

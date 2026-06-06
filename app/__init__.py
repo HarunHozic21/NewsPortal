@@ -16,24 +16,25 @@ def create_app(config_name="default"):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
-    # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
 
-    # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.articles import articles_bp
     from app.routes.sources import sources_bp
     from app.routes.categories import categories_bp
+    from app.routes.admin import admin_bp
+    from app.routes.writer import writer_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(articles_bp, url_prefix="/api/articles")
     app.register_blueprint(sources_bp, url_prefix="/api/sources")
     app.register_blueprint(categories_bp, url_prefix="/api/categories")
+    app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    app.register_blueprint(writer_bp, url_prefix="/api/writer")
 
-    # Serve frontend
     @app.route('/')
     def index():
         return send_from_directory('../frontend', 'index.html')
