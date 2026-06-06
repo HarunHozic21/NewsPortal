@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 from app.config import config
 
@@ -20,6 +21,7 @@ def create_app(config_name="default"):
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    CORS(app)
 
     from app.routes.auth import auth_bp
     from app.routes.articles import articles_bp
