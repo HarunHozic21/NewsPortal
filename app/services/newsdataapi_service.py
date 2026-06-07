@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timezone
-import urllib.request  # Built-in helper to avoid extra dependencies under time pressure
+import urllib.request
 from bs4 import BeautifulSoup
 from newsdataapi import NewsDataApiClient
 from app import db
@@ -19,7 +19,6 @@ def scrape_full_text(url: str) -> str | None:
     if not url:
         return None
     try:
-        # Set a generic User-Agent header so news websites don't block the request
         req = urllib.request.Request(
             url,
             headers={
@@ -31,11 +30,9 @@ def scrape_full_text(url: str) -> str | None:
 
         soup = BeautifulSoup(html, "html.parser")
 
-        # Strip away clutter (scripts, styles, navigations)
         for element in soup(["script", "style", "nav", "header", "footer", "form"]):
             element.extract()
 
-        # Find all main paragraph texts typical of news layouts
         paragraphs = soup.find_all("p")
         text_content = "\n\n".join(
             [p.get_text().strip() for p in paragraphs if len(p.get_text().strip()) > 20]
@@ -115,27 +112,32 @@ def fetch_and_store_articles(app, api_key: str, countries: str, languages: str) 
 
                 source = get_or_create_source(source_name, domain, country_code)
 
-                # WORKAROUND: Extract the article's URL
                 article_url = item.get("link", "")
 
-                # If API field is empty/truncated, parse the live link directly
+                # Treat paid-plan placeholder as empty
                 api_content = item.get("full_content") or item.get("content")
+                if api_content and "ONLY AVAILABLE IN PAID PLANS" in api_content:
+                    api_content = None
+
+                # If API content is empty/restricted, scrape the live URL
                 if not api_content and article_url:
                     logger.info(
                         f"Free API limit met. Scraping full content for: {article_url}"
                     )
-                    article_content = scrape_full_text(article_url) or item.get(
-                        "description"
+                    article_content = (
+                        scrape_full_text(article_url)
+                        or item.get("description")
+                        or ""
                     )
                 else:
-                    article_content = api_content
+                    article_content = api_content or item.get("description") or ""
 
                 # Build article
                 article = Article(
                     external_id=external_id,
                     title=item.get("title", "Untitled"),
                     description=item.get("description"),
-                    content=article_content,  # Patched with scraped full text!
+                    content=article_content,
                     url=article_url,
                     image_url=item.get("image_url"),
                     language=item.get("language"),

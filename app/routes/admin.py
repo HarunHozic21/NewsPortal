@@ -91,6 +91,7 @@ def get_stats():
 
 
 @admin_bp.route("/fetch-news", methods=["POST"])
+@role_required("admin")
 def trigger_fetch():
     from flask import current_app
     from app.services.newsdataapi_service import fetch_and_store_articles
@@ -103,3 +104,11 @@ def trigger_fetch():
         return jsonify({"message": f"Fetched and stored {count} new articles", "count": count}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@admin_bp.route("/reset-articles", methods=["POST"])
+@role_required("admin")
+def reset_articles():
+    Article.query.delete()
+    db.session.commit()
+    return jsonify({"message": "All articles deleted"}), 200
