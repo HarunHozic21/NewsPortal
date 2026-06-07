@@ -161,6 +161,184 @@
                 <span id="navUsername">User</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="pages/feed.html"
+                    ><i class="bi bi-rss me-2"></i>My Feed</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()"
+                    ><i class="bi bi-box-arrow-right me-2"></i>Logout</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="row g-0 hero-grid">
+          <!-- Main story -->
+          <div class="col-lg-7 hero-main" id="heroMain">
+            <div class="hero-placeholder animate-pulse">
+              <div class="placeholder-shimmer"></div>
+            </div>
+          </div>
+          <!-- Side stories -->
+          <div class="col-lg-5 hero-side" id="heroSide"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BREAKING / TICKER -->
+    <div class="news-ticker">
+      <div class="container d-flex align-items-center">
+        <span class="ticker-label">BREAKING</span>
+        <div class="ticker-wrap">
+          <div class="ticker-content" id="tickerContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="container">
+        <div class="row g-4">
+          <!-- Articles grid -->
+          <div class="col-lg-8">
+            <!-- Country quick filters -->
+            <div class="country-filters mb-4">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="Bosnia">🇧🇦 Bosnia</button>
+              <button class="filter-btn" data-filter="Serbia">🇷🇸 Serbia</button>
+              <button class="filter-btn" data-filter="Croatia">
+                🇭🇷 Croatia
+              </button>
+              <button class="filter-btn" data-filter="Slovenia">
+                🇸🇮 Slovenia
+              </button>
+              <button class="filter-btn" data-filter="Montenegro">
+                🇲🇪 Montenegro
+              </button>
+              <button class="filter-btn" data-filter="NorthMacedonia">
+                🇲🇰 N. Macedonia
+              </button>
+              <button class="filter-btn" data-filter="Kosovo">🇽🇰 Kosovo</button>
+            </div>
+
+            <div class="section-header">
+              <h2 class="section-title">Latest News</h2>
+            </div>
+            <div id="articlesGrid" class="articles-grid"></div>
+            <div class="text-center mt-4" id="loadMoreWrap">
+              <button
+                class="btn btn-load-more"
+                id="loadMoreBtn"
+                onclick="loadMoreArticles()"
+              >
+                Load More <i class="bi bi-arrow-down"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="col-lg-4">
+            <!-- Media Bias Widget -->
+            <div class="sidebar-widget bias-widget">
+              <div class="widget-header">
+                <h3>
+                  <i class="bi bi-bar-chart-fill"></i> Media Bias Spectrum
+                </h3>
+              </div>
+              <div class="bias-spectrum-mini" id="biasMini"></div>
+              <a href="pages/bias.html" class="btn btn-widget-more w-100 mt-3"
+                >View Full Spectrum <i class="bi bi-arrow-right"></i
+              ></a>
+            </div>
+
+            <!-- Trending -->
+            <div class="sidebar-widget mt-4">
+              <div class="widget-header">
+                <h3><i class="bi bi-fire"></i> Trending</h3>
+              </div>
+              <div id="trendingList"></div>
+            </div>
+
+            <!-- Countries widget -->
+            <div class="sidebar-widget mt-4">
+              <div class="widget-header">
+                <h3><i class="bi bi-globe2"></i> Browse by Country</h3>
+              </div>
+              <div class="country-cards">
+                <a
+                  href="pages/country.html?country=Bosnia"
+                  class="country-card-mini"
+                  >🇧🇦 Bosnia & Herzegovina</a
+                >
+                <a
+                  href="pages/country.html?country=Serbia"
+                  class="country-card-mini"
+                  >🇷🇸 Serbia</a
+                >
+                <a
+                  href="pages/country.html?country=Croatia"
+                  class="country-card-mini"
+                  >🇭🇷 Croatia</a
+                >
+                <a
+                  href="pages/country.html?country=Slovenia"
+                  class="country-card-mini"
+                  >🇸🇮 Slovenia</a
+                >
+                <a
+                  href="pages/country.html?country=Montenegro"
+                  class="country-card-mini"
+                  >🇲🇪 Montenegro</a
+                >
+                <a
+                  href="pages/country.html?country=NorthMacedonia"
+                  class="country-card-mini"
+                  >🇲🇰 N. Macedonia</a
+                >
+                <a
+                  href="pages/country.html?country=Kosovo"
+                  class="country-card-mini"
+                  >🇽🇰 Kosovo</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer mt-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="footer-brand">
+              <span class="brand-bv">BV</span>
+              <span class="brand-text-footer">Balkanske Vijesti</span>
+            </div>
+            <p class="footer-tagline">
+              Objective news from the heart of the Balkans.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <h5 class="footer-heading">Countries</h5>
+            <ul class="footer-links">
+              <li>
+                <a href="pages/country.html?country=Bosnia"
+                  >🇧🇦 Bosnia & Herzegovina</a
+                >
+              </li>
+              <li><a href="pages/country.html?country=Serbia">🇷🇸 Serbia</a></li>
               <li>
                 <a href="pages/country.html?country=Croatia">🇭🇷 Croatia</a>
               </li>
