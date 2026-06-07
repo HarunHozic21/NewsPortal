@@ -112,3 +112,13 @@ def reset_articles():
     Article.query.delete()
     db.session.commit()
     return jsonify({"message": "All articles deleted"}), 200
+
+@admin_bp.route("/reset-articles", methods=["POST"])
+@role_required("admin")
+def reset_articles():
+    db.session.execute(db.text("DELETE FROM article_categories"))
+    db.session.execute(db.text("DELETE FROM comments"))
+    db.session.execute(db.text("DELETE FROM saved_articles"))
+    Article.query.delete()
+    db.session.commit()
+    return jsonify({"message": "All articles deleted"}), 200
