@@ -45,7 +45,6 @@ async function checkIfSaved(articleId) {
 async function loadArticle(id) {
   let article = null;
 
-  // 1. Try backend
   try {
     const data = await ApiService.getArticle(id);
     article = data;
@@ -53,17 +52,11 @@ async function loadArticle(id) {
     /* fall through */
   }
 
-  // 2. Try mock
-  if (!article) {
-    article = MOCK.articles.find((a) => String(a.id) === String(id));
-  }
-
   if (!article) {
     showArticleError("Article not found.");
     return;
   }
 
-  // Normalise field names
   currentArticle = {
     id: article.id,
     title: article.title,
@@ -81,11 +74,12 @@ async function loadArticle(id) {
       article.image ||
       `https://picsum.photos/seed/${article.id}/800/450`,
     published_at: article.published_at || article.created_at || "",
+    url: article.url || "",
   };
 
   renderArticle(currentArticle);
   renderBiasMeter(currentArticle);
-  renderRelated(currentArticle);
+  await renderRelated(currentArticle);
 }
 
 function renderArticle(a) {
@@ -101,24 +95,25 @@ function renderArticle(a) {
       <span class="bias-badge ${bias.cssClass}">${bias.label}</span>
     </div>`;
 
-  // Hero image
   if (a.image) {
     const img = document.getElementById("articleHeroImg");
     img.src = a.image;
-    img.onerror = () => {
-      img.style.display = "none";
-    };
+    img.onerror = () => { img.style.display = "none"; };
     img.classList.remove("d-none");
   }
 
-  // Body — split on newlines into paragraphs
   const bodyText = a.body || a.excerpt || "Full article not available.";
   const paras = bodyText.split(/\n+/).filter((p) => p.trim());
   document.getElementById("articleBody").innerHTML = paras.length
     ? paras.map((p) => `<p>${escapeHtml(p.trim())}</p>`).join("")
     : `<p>${escapeHtml(bodyText)}</p>`;
 
-  // Actions
+  // Read full article link
+  if (a.url) {
+    const bodyEl = document.getElementById("articleBody");
+    bodyEl.innerHTML += `<p style="margin-top:1.5rem"><a href="${a.url}" target="_blank" rel="noopener" style="color:var(--accent)"><i class="bi bi-box-arrow-up-right me-1"></i>Read full article on source site</a></p>`;
+  }
+
   document.getElementById("articleActions").style.display = "flex";
   document.getElementById("shareTwitter").href =
     `https://twitter.com/intent/tweet?text=${encodeURIComponent(a.title)}&url=${encodeURIComponent(location.href)}`;
@@ -127,28 +122,35 @@ function renderArticle(a) {
 }
 
 function renderBiasMeter(a) {
-  const source = MOCK.sources.find((s) => s.name === a.source) || {};
-  const biasVal = source.bias || a.bias || "center";
-  const bias = BiasStrategy.resolve(biasVal);
-
+  const bias = BiasStrategy.resolve(a.bias || "center");
   document.getElementById("biasMeterCard").style.display = "block";
   document.getElementById("biasSourceName").textContent = a.source;
-  document.getElementById("biasDescription").textContent =
-    source.description || `This source leans ${bias.label}.`;
-
+  document.getElementById("biasDescription").textContent = `This source leans ${bias.label}.`;
   setTimeout(() => {
     document.getElementById("biasIndicator").style.left = `${bias.pct}%`;
   }, 400);
 }
 
-function renderRelated(a) {
-  const related = MOCK.articles
-    .filter(
-      (x) =>
-        String(x.id) !== String(a.id) &&
-        (x.country === a.country || x.category === a.category),
-    )
-    .slice(0, 3);
+async function renderRelated(a) {
+  let related = [];
+  try {
+    const data = await ApiService.getArticles({ per_page: 10 });
+    const items = Array.isArray(data) ? data : data.articles || [];
+    related = items
+      .filter((x) => String(x.id) !== String(a.id))
+      .slice(0, 3)
+      .map((x) => ({
+        id: x.id,
+        title: x.title,
+        category: x.categories?.[0]?.name || x.category || "",
+        country: x.source?.country || x.country || "",
+        source: x.source?.name || x.source || "",
+        bias: x.source?.bias_label?.toLowerCase().replace(" ", "_") || x.bias || "center",
+        image: x.image_url || x.image || `https://picsum.photos/seed/${x.id}/300/200`,
+      }));
+  } catch {
+    return;
+  }
 
   if (!related.length) return;
   document.getElementById("relatedSection").style.display = "block";
@@ -175,7 +177,6 @@ function renderRelated(a) {
     .join("");
 }
 
-// ─── SAVE ────────────────────────────────────
 async function toggleSave() {
   if (!Auth.isLoggedIn()) {
     window.location.href = `login.html?redirect=${encodeURIComponent(location.href)}`;
@@ -197,26 +198,12 @@ async function toggleSave() {
   }
 }
 
-// ─── COMMENTS ────────────────────────────────
 async function loadComments(articleId) {
   try {
     const data = await ApiService.getComments(articleId);
     comments = Array.isArray(data) ? data : data.comments || [];
   } catch {
-    comments = [
-      {
-        id: 1,
-        author: "Marko K.",
-        text: "Great piece of journalism. The context given is exactly what was missing from other coverage.",
-        created_at: "2025-06-05T09:15:00Z",
-      },
-      {
-        id: 2,
-        author: "Amira H.",
-        text: "Appreciate the balanced reporting. I wish there was more detail on civil society reactions.",
-        created_at: "2025-06-05T10:02:00Z",
-      },
-    ];
+    comments = [];
   }
   renderComments();
   updateCommentForm();
@@ -304,7 +291,6 @@ function showArticleError(msg) {
     `<p style="color:var(--text-muted)">${msg} <a href="../index.html" style="color:var(--accent)">Return home.</a></p>`;
 }
 
-// Add postComment to ApiService if missing
 if (!ApiService.postComment) {
   ApiService.postComment = (articleId, text) => {
     const token = localStorage.getItem("bv_token");

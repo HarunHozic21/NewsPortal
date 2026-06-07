@@ -46,7 +46,6 @@ function setTopbarDate() {
 
 async function loadArticles() {
   allArticles = await fetchArticles({ per_page: 20 });
-  if (!allArticles.length) allArticles = MOCK.articles;
   renderHero();
   renderTicker();
   renderTrending();
@@ -167,6 +166,11 @@ function renderArticles(reset = false) {
   const grid = document.getElementById("articlesGrid");
   if (!grid) return;
 
+  if (!slice.length && displayedCount === 0) {
+    grid.innerHTML = `<p style="color:var(--text-muted);padding:2rem 0">No articles found.</p>`;
+    return;
+  }
+
   slice.forEach((a, i) => {
     const bias = BiasStrategy.resolve(a.bias);
     const card = document.createElement("a");
@@ -241,7 +245,6 @@ async function fetchAndRender(filter) {
   } else {
     const info = MOCK.countries[filter];
     if (info) {
-      // Fetch by country code AND altCode separately, merge results
       let articles1 = [],
         articles2 = [];
       try {
@@ -260,7 +263,6 @@ async function fetchAndRender(filter) {
           articles2 = Array.isArray(d) ? d : d.articles || [];
         } catch {}
       }
-      // Merge and deduplicate by id
       const seen = new Set();
       allArticles = [...articles1, ...articles2]
         .filter((a) => {
@@ -270,7 +272,6 @@ async function fetchAndRender(filter) {
         })
         .map(normaliseArticle);
     } else {
-      // Category filter — filter locally
       allArticles = (await fetchArticles({})).filter(
         (a) => a.category === filter,
       );
@@ -286,6 +287,6 @@ async function fetchArticles(params) {
     const items = Array.isArray(data) ? data : data.articles || [];
     return items.map(normaliseArticle);
   } catch {
-    return MOCK.articles;
+    return [];
   }
 }

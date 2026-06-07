@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.title = `${info.name} — Balkanske Vijesti`;
 
-  // Hero
   document.getElementById("countryHeroContent").innerHTML = `
     <div class="country-hero-flag">${info.flag}</div>
     <h1 class="country-hero-name">${info.name}</h1>
@@ -21,7 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("countryHero").style.borderBottom =
     `4px solid ${info.color}`;
 
-  // Articles - try multiple country codes
   let articles = [];
   const codesToTry = [info.code, info.altCode].filter(Boolean);
 
@@ -36,18 +34,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch {}
   }
 
-  // Deduplicate by id
   const seen = new Set();
   articles = articles.filter((a) => {
     if (seen.has(a.id)) return false;
     seen.add(a.id);
     return true;
   });
-
-  // Only fall back to mock if nothing came from DB
-  if (!articles.length) {
-    articles = MOCK.articles.filter((a) => a.country === country);
-  }
 
   const title = document.getElementById("countryArticlesTitle");
   title.textContent = `${info.flag} ${info.name} News (${articles.length})`;
@@ -59,21 +51,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     noEl.classList.remove("d-none");
   } else {
     articles.forEach((a, i) => {
-      const bias = BiasStrategy.resolve(a.bias || a.bias_score);
+      const bias = BiasStrategy.resolve(a.source?.bias_label?.toLowerCase().replace(" ", "_") || a.bias || a.bias_score);
       const card = document.createElement("a");
       card.className = "article-card fade-in";
       card.href = `article.html?id=${a.id}`;
       card.style.animationDelay = `${i * 0.06}s`;
       card.innerHTML = `
-        <img class="article-thumb" src="${a.image || a.image_url || "https://picsum.photos/seed/" + a.id + "c/300/200"}" alt="" loading="lazy"/>
+        <img class="article-thumb" src="${a.image_url || a.image || "https://picsum.photos/seed/" + a.id + "c/300/200"}" alt="" loading="lazy"/>
         <div style="flex:1">
           <div class="article-meta-row">
-            <span class="article-category">${a.category || "News"}</span>
+            <span class="article-category">${a.categories?.[0]?.name || a.category || "News"}</span>
           </div>
           <div class="article-title">${a.title}</div>
-          <div class="article-excerpt">${a.excerpt || a.description || ""}</div>
+          <div class="article-excerpt">${a.description || a.excerpt || ""}</div>
           <div class="article-footer">
-            <span>${a.source || a.source_name || ""} · ${formatDate(a.published_at)}</span>
+            <span>${a.source?.name || a.source || ""} · ${formatDate(a.published_at)}</span>
             <span class="bias-badge ${bias.cssClass}">${bias.label}</span>
           </div>
         </div>`;
@@ -91,15 +83,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     )
     .join("");
 
-  // Local bias sidebar
-  const localSources = MOCK.sources.filter(
-    (s) => s.country === country || s.country === "Regional",
-  );
+  // Local bias sidebar — use real sources from API if available
+  let localSources = [];
+  try {
+    const data = await ApiService.getBiasSpectrum();
+    const allSources = Array.isArray(data) ? data : data.sources || [];
+    localSources = allSources.filter(
+      (s) => (s.country || "").toLowerCase() === (info.code || country).toLowerCase()
+    );
+  } catch {}
+
+  if (!localSources.length) {
+    localSources = MOCK.sources.filter(
+      (s) => s.country === country || s.country === "Regional"
+    );
+  }
+
   const biasEl = document.getElementById("localBias");
   if (localSources.length) {
     biasEl.innerHTML = localSources
       .map((s) => {
-        const bias = BiasStrategy.resolve(s.bias);
+        const bias = BiasStrategy.resolve(s.bias || s.bias_score);
         return `
         <div class="bias-bar-row">
           <div class="bias-source-name" style="font-size:12px">${s.name}</div>
