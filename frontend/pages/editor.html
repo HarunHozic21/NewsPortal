@@ -159,7 +159,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script>
-const API='http://127.0.0.1:5000/api';
+const API='https://newsportal-3pyx.onrender.com/api';
 function authH(){const t=localStorage.getItem('bv_token');return{'Content-Type':'application/json',...(t?{Authorization:`Bearer ${t}`}:{})}}
 async function apiFetch(path,opts={}){const res=await fetch(`${API}${path}`,{headers:authH(),...opts});const data=await res.json();if(!res.ok)throw new Error(data.error||data.message||`HTTP ${res.status}`);return data}
 document.addEventListener('DOMContentLoaded',async()=>{
