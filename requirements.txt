@@ -11,3 +11,5 @@ gunicorn
 flask-cors
 beautifulsoup4
 requests
+pytest
+pytest-flask
