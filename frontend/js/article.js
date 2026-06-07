@@ -29,7 +29,7 @@ async function checkIfSaved(articleId) {
   if (!Auth.isLoggedIn()) return;
   try {
     const saved = await ApiService.getSavedArticles();
-    const ids = saved.map((s) => String(s.article_id || s.id));
+    const ids = saved.map((s) => String(s.article?.id || s.article_id));
     isSaved = ids.includes(String(articleId));
     const btn = document.getElementById("saveBtn");
     if (btn) {

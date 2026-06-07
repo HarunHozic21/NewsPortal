@@ -545,7 +545,7 @@
 
         el.innerHTML = saved
           .map((s) => {
-            const id = s.article_id || s.id;
+            const id = s.article?.id || s.article_id;
             const title = s.article?.title || s.title || `Article #${id}`;
             const source = s.article?.source?.name || s.source || "";
             const date = s.article?.published_at || s.saved_at || "";
