@@ -29,7 +29,7 @@ async function checkIfSaved(articleId) {
   if (!Auth.isLoggedIn()) return;
   try {
     const saved = await ApiService.getSavedArticles();
-    const ids = saved.map((s) => String(s.article?.id || s.article_id));
+    const ids = saved.map((s) => String(s.article_id || s.id));
     isSaved = ids.includes(String(articleId));
     const btn = document.getElementById("saveBtn");
     if (btn) {
@@ -217,21 +217,46 @@ function renderComments() {
     el.innerHTML = `<p style="color:var(--text-muted);padding:20px 0;font-size:14px">No comments yet. Be the first.</p>`;
     return;
   }
+  const currentUser = Auth.getUser();
   el.innerHTML = comments
     .map(
-      (c) => `
-    <div class="comment-card fade-in">
+      (c) => {
+        const canDelete = currentUser && (currentUser.id === c.user_id || currentUser.role === "admin");
+        return `
+    <div class="comment-card fade-in" id="comment-${c.id}">
       <div class="comment-header">
         <div class="comment-author">
           <div class="comment-avatar">${(c.author || c.username || "U")[0].toUpperCase()}</div>
           ${escapeHtml(c.author || c.username || "Anonymous")}
         </div>
-        <span class="comment-date">${formatDate(c.created_at)}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="comment-date">${formatDate(c.created_at)}</span>
+          ${canDelete ? `<button onclick="deleteComment(${c.id})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;padding:0" title="Delete comment"><i class="bi bi-trash"></i></button>` : ""}
+        </div>
       </div>
       <div class="comment-body">${escapeHtml(c.text || c.content || "")}</div>
-    </div>`,
+    </div>`;
+      }
     )
     .join("");
+}
+
+async function deleteComment(commentId) {
+  if (!confirm("Delete this comment?")) return;
+  const articleId = new URLSearchParams(location.search).get("id");
+  const token = localStorage.getItem("bv_token");
+  try {
+    const res = await fetch(`${_API_BASE}/articles/${articleId}/comments/${commentId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Failed");
+    comments = comments.filter((c) => c.id !== commentId);
+    renderComments();
+    showToast("Comment deleted.", "success");
+  } catch {
+    showToast("Could not delete comment.", "error");
+  }
 }
 
 function updateCommentForm() {

@@ -513,6 +513,12 @@
         <i class="bi bi-people-fill"></i> Users
       </button>
 
+      <div class="nav-section-label">Moderation</div>
+      <button class="sidebar-link" onclick="showPanel('comments')">
+        <i class="bi bi-chat-dots-fill"></i> Comments
+        <span class="badge-count" id="commentsBadge" style="display:none">!</span>
+      </button>
+
       <div class="nav-section-label">Tools</div>
       <button class="sidebar-link" onclick="triggerFetch()" id="fetchBtn">
         <i class="bi bi-cloud-download"></i> Fetch News
@@ -677,6 +683,25 @@
       </div>
     </div>
 
+    <!-- COMMENTS PANEL -->
+    <div class="admin-panel" id="panel-comments">
+      <div class="admin-topbar">
+        <div>
+          <h1 class="admin-page-title">Comments</h1>
+          <div class="admin-page-sub">Moderate user comments across all articles</div>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-filter-row">
+          <input type="text" class="admin-input" placeholder="Search comments…" id="commentSearch" oninput="filterComments()" style="flex:1"/>
+        </div>
+        <div id="commentsTableWrap">
+          <div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>
+        </div>
+        <div class="admin-pagination" id="commentsPagination"></div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -793,6 +818,7 @@ function showPanel(name) {
   if (name === 'articles') loadArticles();
   if (name === 'sources') loadSources();
   if (name === 'users') loadUsers();
+  if (name === 'comments') loadAdminComments();
 }
 
 // ─── STATS ────────────────────────────────────────────
@@ -1205,6 +1231,73 @@ async function triggerFetch() {
     if (btn) { btn.innerHTML = orig1; btn.disabled = false; }
     if (btnTop) { btnTop.innerHTML = orig2; btnTop.disabled = false; }
   }
+}
+
+// ─── COMMENTS ─────────────────────────────────────────
+let allComments = [], commentsPage = 1;
+
+async function loadAdminComments() {
+  const wrap = document.getElementById('commentsTableWrap');
+  wrap.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>';
+  try {
+    const q = new URLSearchParams({ page: commentsPage, per_page: 20 });
+    const data = await apiFetch(`/articles/comments/all?${q}`);
+    allComments = data.comments || [];
+    renderCommentsTable(allComments);
+    renderPagination('commentsPagination', data.page, data.pages, (p) => { commentsPage = p; loadAdminComments(); });
+  } catch (e) {
+    wrap.innerHTML = `<div style="padding:20px;color:var(--admin-danger);font-size:13px">${e.message}</div>`;
+  }
+}
+
+function filterComments() {
+  const q = document.getElementById('commentSearch').value.toLowerCase();
+  const filtered = allComments.filter(c =>
+    c.text?.toLowerCase().includes(q) ||
+    c.author?.toLowerCase().includes(q)
+  );
+  renderCommentsTable(filtered);
+}
+
+function renderCommentsTable(comments) {
+  const wrap = document.getElementById('commentsTableWrap');
+  if (!comments.length) {
+    wrap.innerHTML = '<div style="padding:30px;text-align:center;color:rgba(255,255,255,.3);font-size:14px">No comments found</div>';
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="admin-table">
+      <thead><tr>
+        <th>Author</th>
+        <th>Comment</th>
+        <th>Article</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr></thead>
+      <tbody>
+        ${comments.map(c => `
+          <tr id="crow-${c.id}">
+            <td style="font-weight:600;color:#fff;white-space:nowrap">${escHtml(c.author || 'Anonymous')}</td>
+            <td style="max-width:300px;font-size:13px;color:rgba(255,255,255,.7)">${escHtml(c.text || '')}</td>
+            <td style="font-size:12px;color:rgba(255,255,255,.4)">
+              <a href="article.html?id=${c.article_id}" target="_blank" style="color:var(--admin-info)">Article #${c.article_id}</a>
+            </td>
+            <td style="font-size:12px;color:rgba(255,255,255,.35);white-space:nowrap">${c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB') : '—'}</td>
+            <td>
+              <button class="btn-admin-danger" onclick="adminDeleteComment(${c.id}, ${c.article_id})">Delete</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function adminDeleteComment(commentId, articleId) {
+  if (!confirm('Delete this comment?')) return;
+  try {
+    await apiFetch(`/articles/${articleId}/comments/${commentId}`, { method: 'DELETE' });
+    toast('Comment deleted');
+    document.getElementById(`crow-${commentId}`)?.remove();
+  } catch (e) { toast(e.message, 'error'); }
 }
 
 // ─── PAGINATION ───────────────────────────────────────
